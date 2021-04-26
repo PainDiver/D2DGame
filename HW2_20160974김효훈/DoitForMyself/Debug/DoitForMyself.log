@@ -1,0 +1,123 @@
+﻿  201600974김효훈.cpp
+C:\Users\hyo29\Desktop\HW2_20160974김효훈\DoitForMyself\201600974김효훈.cpp(89,20): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\hyo29\Desktop\HW2_20160974김효훈\DoitForMyself\201600974김효훈.cpp(98,26): warning C4334: '<<': result of 32-bit shift implicitly converted to 64 bits (was 64-bit shift intended?)
+C:\Users\hyo29\Desktop\HW2_20160974김효훈\DoitForMyself\201600974김효훈.cpp(309,15): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+C:\Users\hyo29\Desktop\HW2_20160974김효훈\DoitForMyself\201600974김효훈.cpp(310,15): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+C:\Users\hyo29\Desktop\HW2_20160974김효훈\DoitForMyself\201600974김효훈.cpp(319,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\hyo29\Desktop\HW2_20160974김효훈\DoitForMyself\201600974김효훈.cpp(320,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\hyo29\Desktop\HW2_20160974김효훈\DoitForMyself\201600974김효훈.cpp(321,22): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\hyo29\Desktop\HW2_20160974김효훈\DoitForMyself\201600974김효훈.cpp(323,14): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\hyo29\Desktop\HW2_20160974김효훈\DoitForMyself\201600974김효훈.cpp(324,14): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\hyo29\Desktop\HW2_20160974김효훈\DoitForMyself\201600974김효훈.cpp(325,14): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\hyo29\Desktop\HW2_20160974김효훈\DoitForMyself\201600974김효훈.cpp(327,15): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\hyo29\Desktop\HW2_20160974김효훈\DoitForMyself\201600974김효훈.cpp(352,62): warning C4554: '<<': check operator precedence for possible error; use parentheses to clarify precedence
+C:\Users\hyo29\Desktop\HW2_20160974김효훈\DoitForMyself\201600974김효훈.cpp(352,86): warning C4554: '<<': check operator precedence for possible error; use parentheses to clarify precedence
+C:\Users\hyo29\Desktop\HW2_20160974김효훈\DoitForMyself\201600974김효훈.cpp(397,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\hyo29\Desktop\HW2_20160974김효훈\DoitForMyself\201600974김효훈.cpp(411,64): warning C4244: 'argument': conversion from 'FLOAT' to 'int', possible loss of data
+C:\Users\hyo29\Desktop\HW2_20160974김효훈\DoitForMyself\201600974김효훈.cpp(411,52): warning C4244: 'argument': conversion from 'FLOAT' to 'int', possible loss of data
+C:\Users\hyo29\Desktop\HW2_20160974김효훈\DoitForMyself\201600974김효훈.cpp(411,38): warning C4244: 'argument': conversion from 'FLOAT' to 'int', possible loss of data
+C:\Users\hyo29\Desktop\HW2_20160974김효훈\DoitForMyself\201600974김효훈.cpp(411,25): warning C4244: 'argument': conversion from 'FLOAT' to 'int', possible loss of data
+C:\Users\hyo29\Desktop\HW2_20160974김효훈\DoitForMyself\201600974김효훈.cpp(488,12): warning C4334: '<<': result of 32-bit shift implicitly converted to 64 bits (was 64-bit shift intended?)
+C:\Users\hyo29\Desktop\HW2_20160974김효훈\DoitForMyself\201600974김효훈.cpp(495,30): warning C4334: '<<': result of 32-bit shift implicitly converted to 64 bits (was 64-bit shift intended?)
+C:\Users\hyo29\Desktop\HW2_20160974김효훈\DoitForMyself\201600974김효훈.cpp(522,82): warning C4334: '<<': result of 32-bit shift implicitly converted to 64 bits (was 64-bit shift intended?)
+C:\Users\hyo29\Desktop\HW2_20160974김효훈\DoitForMyself\201600974김효훈.cpp(527,29): warning C4244: 'argument': conversion from 'int' to 'const float', possible loss of data
+C:\Users\hyo29\Desktop\HW2_20160974김효훈\DoitForMyself\201600974김효훈.cpp(527,25): warning C4244: 'argument': conversion from 'int' to 'const float', possible loss of data
+C:\Users\hyo29\Desktop\HW2_20160974김효훈\DoitForMyself\201600974김효훈.cpp(537,82): warning C4334: '<<': result of 32-bit shift implicitly converted to 64 bits (was 64-bit shift intended?)
+C:\Users\hyo29\Desktop\HW2_20160974김효훈\DoitForMyself\201600974김효훈.cpp(561,29): warning C4244: 'argument': conversion from 'int' to 'const float', possible loss of data
+C:\Users\hyo29\Desktop\HW2_20160974김효훈\DoitForMyself\201600974김효훈.cpp(561,25): warning C4244: 'argument': conversion from 'int' to 'const float', possible loss of data
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d2d1helper.h(152,50): warning C4838: conversion from 'Type' to 'FLOAT' requires a narrowing conversion
+          with
+          [
+              Type=int
+          ]
+C:\Users\hyo29\Desktop\HW2_20160974김효훈\DoitForMyself\201600974김효훈.cpp(412): message : see reference to function template instantiation 'D2D1::TypeTraits<int>::Rect D2D1::Rect<int>(Type,Type,Type,Type)' being compiled
+          with
+          [
+              Type=int
+          ]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d2d1helper.h(152,50): warning C4244: 'initializing': conversion from 'Type' to 'FLOAT', possible loss of data
+          with
+          [
+              Type=int
+          ]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d2d1helper.h(152,56): warning C4838: conversion from 'Type' to 'FLOAT' requires a narrowing conversion
+          with
+          [
+              Type=int
+          ]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d2d1helper.h(152,56): warning C4244: 'initializing': conversion from 'Type' to 'FLOAT', possible loss of data
+          with
+          [
+              Type=int
+          ]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d2d1helper.h(152,61): warning C4838: conversion from 'Type' to 'FLOAT' requires a narrowing conversion
+          with
+          [
+              Type=int
+          ]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d2d1helper.h(152,61): warning C4244: 'initializing': conversion from 'Type' to 'FLOAT', possible loss of data
+          with
+          [
+              Type=int
+          ]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d2d1helper.h(152,68): warning C4838: conversion from 'Type' to 'FLOAT' requires a narrowing conversion
+          with
+          [
+              Type=int
+          ]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d2d1helper.h(152,68): warning C4244: 'initializing': conversion from 'Type' to 'FLOAT', possible loss of data
+          with
+          [
+              Type=int
+          ]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d2d1helper.h(152,50): warning C4838: conversion from 'Type' to 'FLOAT' requires a narrowing conversion
+          with
+          [
+              Type=LONG
+          ]
+C:\Users\hyo29\Desktop\HW2_20160974김효훈\DoitForMyself\201600974김효훈.cpp(432): message : see reference to function template instantiation 'D2D1::TypeTraits<LONG>::Rect D2D1::Rect<LONG>(Type,Type,Type,Type)' being compiled
+          with
+          [
+              Type=LONG
+          ]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d2d1helper.h(152,50): warning C4244: 'initializing': conversion from 'Type' to 'FLOAT', possible loss of data
+          with
+          [
+              Type=LONG
+          ]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d2d1helper.h(152,56): warning C4838: conversion from 'Type' to 'FLOAT' requires a narrowing conversion
+          with
+          [
+              Type=LONG
+          ]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d2d1helper.h(152,56): warning C4244: 'initializing': conversion from 'Type' to 'FLOAT', possible loss of data
+          with
+          [
+              Type=LONG
+          ]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d2d1helper.h(152,61): warning C4838: conversion from 'Type' to 'FLOAT' requires a narrowing conversion
+          with
+          [
+              Type=LONG
+          ]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d2d1helper.h(152,61): warning C4244: 'initializing': conversion from 'Type' to 'FLOAT', possible loss of data
+          with
+          [
+              Type=LONG
+          ]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d2d1helper.h(152,68): warning C4838: conversion from 'Type' to 'FLOAT' requires a narrowing conversion
+          with
+          [
+              Type=LONG
+          ]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um\d2d1helper.h(152,68): warning C4244: 'initializing': conversion from 'Type' to 'FLOAT', possible loss of data
+          with
+          [
+              Type=LONG
+          ]
+  BoxManager.cpp
+  StudentBox.cpp
+C:\Users\hyo29\Desktop\HW2_20160974김효훈\DoitForMyself\StudentBox.cpp(52,13): warning C4244: 'return': conversion from 'const __int64' to 'int', possible loss of data
+  Generating Code...
+C:\Users\hyo29\Desktop\HW2_20160974김효훈\DoitForMyself\201600974김효훈.cpp(386): warning C4715: 'SecondHomeWork::OnRender': not all control paths return a value
+  DoitForMyself.vcxproj -> C:\Users\hyo29\Desktop\HW2_20160974김효훈\Debug\DoitForMyself.exe
