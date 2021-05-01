@@ -143,7 +143,7 @@ HRESULT DemoApp::CreateGridPatternBrush(ID2D1RenderTarget* pRenderTarget, ID2D1B
 	{
 		// 격자 패턴을 그림.
 		ID2D1SolidColorBrush* pGridBrush = NULL;
-		hr = pCompatibleRenderTarget->CreateSolidColorBrush(D2D1::ColorF(0.93f, 0.94f, 0.96f, 1.0f), &pGridBrush);
+		hr = pCompatibleRenderTarget->CreateSolidColorBrush(D2D1::ColorF(0.f, 0.f, 0.f, 1.f), &pGridBrush);
 
 		if (SUCCEEDED(hr))
 		{
@@ -212,7 +212,7 @@ HRESULT DemoApp::OnRender()
 
 		// 첫 번째로 비트맵 m_pBitmap을 그리기.
 
-		D2D1_POINT_2F upperLeftCorner = D2D1::Point2F(10.f, 40.f);
+		D2D1_POINT_2F upperLeftCorner = D2D1::Point2F(20.f, 80.f);
 
 		// 비트맵 m_pBitmap을 그림.
 		m_pRenderTarget->DrawBitmap(

@@ -223,9 +223,7 @@ HRESULT DemoApp::OnRender()
 		D2D1_RECT_F captionBounds = D2D1::RectF(5, 110, 105, 145);
 
 		m_pRenderTarget->SetTransform(D2D1::Matrix3x2F::Translation(5, 5));
-		m_pBitmapBrush->SetExtendModeX(D2D1_EXTEND_MODE_CLAMP);
-		m_pBitmapBrush->SetExtendModeY(D2D1_EXTEND_MODE_CLAMP);
-
+		
 		m_pRenderTarget->FillRectangle(exampleRectangle, m_pBitmapBrush);
 		m_pRenderTarget->DrawRectangle(exampleRectangle, m_pBlackBrush);
 

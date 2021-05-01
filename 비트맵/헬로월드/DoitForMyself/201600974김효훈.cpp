@@ -124,7 +124,7 @@ HRESULT DemoApp::CreateDeviceIndependentResources()
 			DWRITE_FONT_STYLE_NORMAL,
 			DWRITE_FONT_STRETCH_NORMAL,
 			msc_fontSize,
-			L"", //locale
+			L"ko-kr", //locale
 			&m_pTextFormat
 		);
 	}
@@ -201,7 +201,7 @@ HRESULT DemoApp::OnRender()
 	// 화면에 "Hello, World"를 표시함.
 	if (SUCCEEDED(hr))
 	{
-		static const WCHAR sc_helloWorld[] = L"Hello, World!";
+		static const WCHAR sc_helloWorld[] = L"해치웠나?!!asd";
 
 		// 렌더타켓의 크기를 얻음.
 		D2D1_SIZE_F renderTargetSize = m_pRenderTarget->GetSize();
@@ -219,6 +219,8 @@ HRESULT DemoApp::OnRender()
 			D2D1::RectF(0, 0, renderTargetSize.width, renderTargetSize.height),
 			m_pBlackBrush
 		);
+
+		
 
 		hr = m_pRenderTarget->EndDraw();
 		if (hr == D2DERR_RECREATE_TARGET)

@@ -1,0 +1,6 @@
+﻿  201600974김효훈.cpp
+C:\Users\hyo29\Desktop\GitCollections\D2DGame\D2DGame\HW3_201600974김효훈\DoitForMyself\201600974김효훈.cpp(545,21): warning C4018: '<': signed/unsigned mismatch
+C:\Users\hyo29\Desktop\GitCollections\D2DGame\D2DGame\HW3_201600974김효훈\DoitForMyself\201600974김효훈.cpp(450,17): warning C4101: 'point': unreferenced local variable
+C:\Users\hyo29\Desktop\GitCollections\D2DGame\D2DGame\HW3_201600974김효훈\DoitForMyself\201600974김효훈.cpp(451,17): warning C4101: 'tangent': unreferenced local variable
+C:\Users\hyo29\Desktop\GitCollections\D2DGame\D2DGame\HW3_201600974김효훈\DoitForMyself\201600974김효훈.cpp(660,24): warning C4018: '<': signed/unsigned mismatch
+  DoitForMyself.vcxproj -> C:\Users\hyo29\Desktop\GitCollections\D2DGame\D2DGame\HW3_201600974김효훈\Debug\DoitForMyself.exe
