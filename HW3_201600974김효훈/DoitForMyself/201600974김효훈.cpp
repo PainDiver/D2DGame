@@ -2,7 +2,7 @@
 #include <vector>
 #include <memory>
 #include "Bullet.h"
-#include "DemoApp.h"
+#include "ThirdHomework.h"
 #include "Character.h"
 
 //#include <time.h>
@@ -12,15 +12,14 @@
 
 //201600974 무역학과 김효훈
 
-#define DEFAULTWIDTH 1920
-#define DEFAULTHEIGHT 1024
+#define DEFAULTWIDTH 1980
+#define DEFAULTHEIGHT 1200
 
 #define BULLETATONCE 50
 
 std::unique_ptr<Character> mainCharacter;
-bool gameStart = true;
 std::unique_ptr<Bullet[]> bullets;
-std::vector<Bullet> bulletQueue;
+std::vector<Bullet> bulletVector;
 bool shot = false;
 
 // 응용 프로그램의 진입점 함수.
@@ -29,7 +28,7 @@ int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR /
 	if (SUCCEEDED(CoInitialize(NULL)))
 	{
 		{
-			DemoApp app;
+			ThirdHomework app;
 
 			if (SUCCEEDED(app.Initialize()))
 			{
@@ -41,13 +40,17 @@ int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR /
 	return 0;
 }
 
-DemoApp::DemoApp() :
+ThirdHomework::ThirdHomework() :
 	m_hwnd(NULL),
 	m_pD2DFactory(NULL),
+	m_pWICFactory(NULL),
+	m_pMoon(NULL),
+	m_pCircle1(NULL),
+	m_pCircle2(NULL),
 	m_pRT(NULL),
 	m_pPathGeometry(NULL),
 	m_pObjectGeometry(NULL),
-	m_pGradientBlackBrush(NULL),
+	m_pGradientYellowBrush(NULL),
 	m_pYellowBrush(NULL),
 	m_Animation(),
 	m_pBuildingBitmap(NULL),
@@ -63,17 +66,23 @@ DemoApp::DemoApp() :
 	m_pLampostBitMask(NULL),
 	m_pCharacterBitmap(NULL),
 	m_pCharacterBitmapBrush(NULL),
-	m_pCharacterBitMask(NULL)
+	m_pCharacterBitMask(NULL),
+	m_pCharacter2Bitmap(NULL),
+	m_pCharacter2BitmapBrush(NULL),
+	m_pCharacter2BitMask(NULL),
+	m_pCharacter3Bitmap(NULL),
+	m_pCharacter3BitmapBrush(NULL),
+	m_pCharacter3BitMask(NULL)
 {
 }
 
-DemoApp::~DemoApp()
+ThirdHomework::~ThirdHomework()
 {
 	SAFE_RELEASE(m_pD2DFactory);
 	SAFE_RELEASE(m_pRT);
 	SAFE_RELEASE(m_pPathGeometry);
 	SAFE_RELEASE(m_pObjectGeometry);
-	SAFE_RELEASE(m_pGradientBlackBrush);
+	SAFE_RELEASE(m_pGradientYellowBrush);
 	SAFE_RELEASE(m_pYellowBrush);
 
 	SAFE_RELEASE(m_pBuildingBitmap);
@@ -94,16 +103,24 @@ DemoApp::~DemoApp()
 	SAFE_RELEASE(m_pCharacterBitmap);
 	SAFE_RELEASE(m_pCharacterBitmapBrush);
 	SAFE_RELEASE(m_pCharacterBitMask)
+
+	SAFE_RELEASE(m_pCharacter2Bitmap);
+	SAFE_RELEASE(m_pCharacter2BitmapBrush);
+	SAFE_RELEASE(m_pCharacter2BitMask)
+
+	SAFE_RELEASE(m_pCharacter3Bitmap);
+	SAFE_RELEASE(m_pCharacter3BitmapBrush);
+	SAFE_RELEASE(m_pCharacter3BitMask);
 }
 
-HRESULT DemoApp::Initialize()
+HRESULT ThirdHomework::Initialize()
 {
 	HRESULT hr;
 
 	//register window class
 	WNDCLASSEX wcex = { sizeof(WNDCLASSEX) };
 	wcex.style = CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc = DemoApp::WndProc;
+	wcex.lpfnWndProc = ThirdHomework::WndProc;
 	wcex.cbClsExtra = 0;
 	wcex.cbWndExtra = sizeof(LONG_PTR);
 	wcex.hInstance = HINST_THISCOMPONENT;
@@ -114,10 +131,10 @@ HRESULT DemoApp::Initialize()
 	RegisterClassEx(&wcex);
 
 	mainCharacter = std::make_unique<Character>();
-	bullets = std::make_unique<Bullet[]>(20);
+	bullets = std::make_unique<Bullet[]>(BULLETATONCE);
 	for (int i = 0; i < BULLETATONCE; i++)
 	{
-		bulletQueue.push_back(bullets[i]);
+		bulletVector.push_back(bullets[i]);
 	}
 
 	hr = CreateDeviceIndependentResources();
@@ -125,7 +142,7 @@ HRESULT DemoApp::Initialize()
 	{
 		m_hwnd = CreateWindow(
 			L"D2DDemoApp", L"Direct2D Demo Application", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
-			1920, 1024, NULL, NULL, HINST_THISCOMPONENT, this);
+			DEFAULTWIDTH,DEFAULTHEIGHT , NULL, NULL, HINST_THISCOMPONENT, this);
 		hr = m_hwnd ? S_OK : E_FAIL;
 		if (SUCCEEDED(hr))
 		{
@@ -147,7 +164,7 @@ HRESULT DemoApp::Initialize()
 	return hr;
 }
 
-HRESULT DemoApp::CreateDeviceIndependentResources()
+HRESULT ThirdHomework::CreateDeviceIndependentResources()
 {
 	HRESULT hr;
 	ID2D1GeometrySink* pSink = NULL;
@@ -212,7 +229,7 @@ HRESULT DemoApp::CreateDeviceIndependentResources()
 	return hr;
 }
 
-HRESULT DemoApp::CreateDeviceResources()
+HRESULT ThirdHomework::CreateDeviceResources()
 {
 	HRESULT hr = S_OK;
 
@@ -305,6 +322,23 @@ HRESULT DemoApp::CreateDeviceResources()
 			hr = LoadBitmapFromFile(m_pRT, m_pWICFactory, L".\\CharacterMask.png", 100, 0, &m_pCharacterBitMask);
 		}
 
+		if (SUCCEEDED(hr))
+		{
+			hr = LoadBitmapFromFile(m_pRT, m_pWICFactory, L".\\Character2.png", 100, 0, &m_pCharacter2Bitmap);
+		}
+		if (SUCCEEDED(hr))
+		{
+			hr = LoadBitmapFromFile(m_pRT, m_pWICFactory, L".\\Character2Mask.png", 100, 0, &m_pCharacter2BitMask);
+		}
+
+		if (SUCCEEDED(hr))
+		{
+			hr = LoadBitmapFromFile(m_pRT, m_pWICFactory, L".\\Character3.png", 100, 0, &m_pCharacter3Bitmap);
+		}
+		if (SUCCEEDED(hr))
+		{
+			hr = LoadBitmapFromFile(m_pRT, m_pWICFactory, L".\\Character3Mask.png", 100, 0, &m_pCharacter3BitMask);
+		}
 
 		if (SUCCEEDED(hr))
 		{
@@ -323,7 +357,7 @@ HRESULT DemoApp::CreateDeviceResources()
 
 			if (SUCCEEDED(hr))
 			{
-				hr = m_pRT->CreateRadialGradientBrush(D2D1::RadialGradientBrushProperties(D2D1::Point2F(0, 0), D2D1::Point2F(0, 0), 200, 200), pGradientStops, &m_pGradientBlackBrush);
+				hr = m_pRT->CreateRadialGradientBrush(D2D1::RadialGradientBrushProperties(D2D1::Point2F(0, 0), D2D1::Point2F(0, 0), 200, 200), pGradientStops, &m_pGradientYellowBrush);
 			}
 
 			SAFE_RELEASE(pGradientStops);
@@ -355,16 +389,25 @@ HRESULT DemoApp::CreateDeviceResources()
 				hr = m_pRT->CreateBitmapBrush(m_pCharacterBitmap, propertiesXClampYClamp, &m_pCharacterBitmapBrush);
 			}
 
+			if (SUCCEEDED(hr))
+			{
+				hr = m_pRT->CreateBitmapBrush(m_pCharacter2Bitmap, propertiesXClampYClamp, &m_pCharacter2BitmapBrush);
+			}
+
+			if (SUCCEEDED(hr))
+			{
+				hr = m_pRT->CreateBitmapBrush(m_pCharacter3Bitmap, propertiesXClampYClamp, &m_pCharacter3BitmapBrush);
+			}
 		}
 	}
 
 	return hr;
 }
 
-void DemoApp::DiscardDeviceResources()
+void ThirdHomework::DiscardDeviceResources()
 {
 	SAFE_RELEASE(m_pRT);
-	SAFE_RELEASE(m_pGradientBlackBrush);
+	SAFE_RELEASE(m_pGradientYellowBrush);
 	SAFE_RELEASE(m_pYellowBrush);
 
 	SAFE_RELEASE(m_pBuildingBitmap);
@@ -385,16 +428,27 @@ void DemoApp::DiscardDeviceResources()
 	SAFE_RELEASE(m_pCharacterBitmap);
 	SAFE_RELEASE(m_pCharacterBitmapBrush);
 	SAFE_RELEASE(m_pCharacterBitMask)
+
+	SAFE_RELEASE(m_pCharacter2Bitmap);
+	SAFE_RELEASE(m_pCharacter2BitmapBrush);
+	SAFE_RELEASE(m_pCharacter2BitMask)
+
+	SAFE_RELEASE(m_pCharacter3Bitmap);
+	SAFE_RELEASE(m_pCharacter3BitmapBrush);
+	SAFE_RELEASE(m_pCharacter3BitMask)
+
 }
 
-void DemoApp::RunMessageLoop()
+void ThirdHomework::RunMessageLoop()
 {
 	MSG msg;
 
 	bool bdone = false;
 
+
 	D2D1_SIZE_F characterSize = m_pCharacterBitmap->GetSize();
-	mainCharacter->SetFirst(0, 0, characterSize.width, characterSize.height);
+	D2D1_SIZE_F rtSize = m_pRT->GetSize();
+	mainCharacter->SetFirst((rtSize.width / 2.f) - (characterSize.width/2) , rtSize.height / 1.45f- (characterSize.height / 2), (rtSize.width / 2.f) + (characterSize.width/2), rtSize.height / 1.45f + (characterSize.height/2));
 
 	while (!bdone)
 	{
@@ -413,46 +467,52 @@ void DemoApp::RunMessageLoop()
 	}
 }
 
-static float anim_time = 0.0f;
-HRESULT DemoApp::OnRender()
+HRESULT ThirdHomework::OnRender()
 {
 	HRESULT hr;
 
 	hr = CreateDeviceResources();
 	if (SUCCEEDED(hr))
 	{
+		D2D1_SIZE_F rtSize = m_pRT->GetSize();
+		float WidthScale = rtSize.width / DEFAULTWIDTH;
+		float HeightScale = rtSize.height / DEFAULTHEIGHT;
 
 		if (GetAsyncKeyState(VK_LEFT) < 0)
 		{
 			mainCharacter->lookLeft = true;
-			if ((mainCharacter->GetLocation()->left >= -1000.f))
+			if ((mainCharacter->GetLocation().left >= 0))
 				mainCharacter->Move(false, -5.f);
+			if (mainCharacter->isMoving == false)
+				mainCharacter->animPose = 1;
+			mainCharacter->isMoving = true;
 		}
 		if (GetAsyncKeyState(VK_RIGHT) < 0)
 		{
 			mainCharacter->lookLeft = false;
-			if ((mainCharacter->GetLocation()->right <= 950.f))
+			if ((mainCharacter->GetLocation().right <= DEFAULTWIDTH))
 				mainCharacter->Move(false, 5.f);
+			if (mainCharacter->isMoving == false)
+				mainCharacter->animPose = 1;
+			mainCharacter->isMoving = true;
 		}
 		if (GetAsyncKeyState(VK_UP) < 0)
 		{
-			if ((mainCharacter->GetLocation()->top >= -150.f))
+			if ((mainCharacter->GetLocation().bottom>= (DEFAULTHEIGHT/1.45f)))
 				mainCharacter->Move(true, -4.f);
+			if (mainCharacter->isMoving == false)
+				mainCharacter->animPose = 1;
+			mainCharacter->isMoving = true;
 		}
 		if (GetAsyncKeyState(VK_DOWN) < 0)
 		{
-			if ((mainCharacter->GetLocation()->bottom <= 400.f))
+			if ((mainCharacter->GetLocation().bottom <= (DEFAULTHEIGHT)))
 				mainCharacter->Move(true, 4.f);
+			if (mainCharacter->isMoving == false)
+				mainCharacter->animPose = 1;
+			mainCharacter->isMoving = true;
 		}
 
-
-
-		D2D1_POINT_2F point;
-		D2D1_POINT_2F tangent;
-
-		D2D1_SIZE_F rtSize = m_pRT->GetSize();
-		float WidthScale = rtSize.width / 1920.f;
-		float HeightScale = rtSize.height / 1280.f;
 
 		D2D1_SIZE_F lampostSize = m_pLampostBitmap->GetSize();
 		D2D1_SIZE_F buildingSize = m_pBuildingBitmap->GetSize();
@@ -463,7 +523,7 @@ HRESULT DemoApp::OnRender()
 		D2D1::Matrix3x2F scale = D2D1::Matrix3x2F::Scale(WidthScale, HeightScale);
 		D2D1::Matrix3x2F scale2 = D2D1::Matrix3x2F::Scale(2.f, 5.f);
 		D2D1::Matrix3x2F translation = D2D1::Matrix3x2F::Translation(0, rtSize.height / 4.f);
-		D2D1::Matrix3x2F spawn = D2D1::Matrix3x2F::Translation(rtSize.width / 2.f, rtSize.height / 1.5f);
+		
 		// 그리기를 준비함.
 		m_pRT->BeginDraw();
 		// 렌더타겟을 클리어함.
@@ -472,11 +532,11 @@ HRESULT DemoApp::OnRender()
 		m_pRT->SetTransform(D2D1::Matrix3x2F::Identity());
 
 		D2D1_ELLIPSE light = D2D1::Ellipse(D2D1::Point2F(0, 0), 200.f, 200.f);
-		m_pRT->SetTransform(scale * translation * D2D1::Matrix3x2F::Translation(rtSize.width / 20.f, rtSize.height / 2.8f));
+		m_pRT->SetTransform(D2D1::Matrix3x2F::Translation(lampostSize.width, lampostSize.height*7.f) * scale);
 		for (int i = 1; i < 5; i++)
 		{
-			m_pRT->FillEllipse(&light, m_pGradientBlackBrush);
-			m_pRT->SetTransform(scale * translation * D2D1::Matrix3x2F::Translation(rtSize.width / 20.f + (WidthScale * i * 600.f), rtSize.height / 2.8f));
+			m_pRT->FillEllipse(&light, m_pGradientYellowBrush);
+			m_pRT->SetTransform(D2D1::Matrix3x2F::Translation(100 * i *6.5f, lampostSize.height * 7.f) *scale);
 		}
 
 		m_pRT->SetTransform(scale);
@@ -484,17 +544,17 @@ HRESULT DemoApp::OnRender()
 		m_pRT->DrawBitmap(m_pSkyBitmap, D2D1::RectF(0, 0, 2000.f, 700.f));
 
 
-		m_pRT->SetTransform(scale * scale2 * translation);
-		D2D1_RECT_F rcBrushRect = D2D1::RectF(0, 0, FireSize.width, FireSize.height / 2);
+		m_pRT->SetTransform(D2D1::Matrix3x2F::Translation(0, FireSize.height / 2.f) * scale2 * scale);
+		D2D1_RECT_F rcBrushRect = D2D1::RectF(0, 0, FireSize.width, FireSize.height);
 		for (int i = 1; i < 7; i++)
 		{
 			m_pRT->SetAntialiasMode(D2D1_ANTIALIAS_MODE_ALIASED);
 			m_pRT->FillOpacityMask(m_pFireBitMask, m_pFireBitmapBrush, D2D1_OPACITY_MASK_CONTENT_GRAPHICS, &rcBrushRect);
 			m_pRT->SetAntialiasMode(D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
-			rcBrushRect = D2D1::RectF(FireSize.width * i * 3.f, 0, FireSize.width * i * 4.f + FireSize.width, FireSize.height / 2);
+			rcBrushRect = D2D1::RectF(FireSize.width * i * 3.f, 0, FireSize.width * i * 4.f + FireSize.width, FireSize.height);
 		}
 
-		m_pRT->SetTransform(scale * scale2 * translation);
+		m_pRT->SetTransform((D2D1::Matrix3x2F::Translation(0, FireSize.height / 1.7f) * scale2 * scale));
 		rcBrushRect = D2D1::RectF(0, 0, buildingSize.width, buildingSize.height);
 		for (int i = 1; i < 15; i++)
 		{
@@ -504,94 +564,149 @@ HRESULT DemoApp::OnRender()
 			rcBrushRect = D2D1::RectF(buildingSize.width * i, 0, buildingSize.width * i + buildingSize.width, buildingSize.height);
 		}
 
-		m_pRT->SetTransform(scale * D2D1::Matrix3x2F::Translation(0, rtSize.height / 2.2f));
-		for (int i = 0; i < 20; i++)
-			m_pRT->DrawBitmap(m_pWallBitmap, D2D1::RectF(wallSize.width * 1.5f * i, 0, wallSize.width * 1.5f * i + wallSize.width * 1.5f, wallSize.height * 2.5f));
+		m_pRT->SetTransform(scale);
+		for (int i = 0; i < 15; i++)
+			m_pRT->DrawBitmap(m_pWallBitmap, D2D1::RectF(wallSize.width * 1.5f * i, wallSize.height*8, wallSize.width * 1.5f * i + wallSize.width * 1.5f, wallSize.height * 10.5));
 
 
-		m_pRT->SetTransform(scale * D2D1::Matrix3x2F::Translation(rtSize.width / 4.f, rtSize.height / 15.f));
+		m_pRT->SetTransform(scale);
 		m_pRT->FillGeometry(m_pMoon, m_pYellowBrush, NULL);
 
 
-		m_pRT->SetTransform(scale * scale2 * translation);
+		m_pRT->SetTransform(D2D1::Matrix3x2F::Translation(0, lampostSize.height/1.5f) * scale2 *scale );
 		rcBrushRect = D2D1::RectF(0, 0, lampostSize.width, lampostSize.height);
 		for (int i = 1; i < 5; i++)
 		{
 			m_pRT->SetAntialiasMode(D2D1_ANTIALIAS_MODE_ALIASED);
 			m_pRT->FillOpacityMask(m_pLampostBitMask, m_pLampostBitmapBrush, D2D1_OPACITY_MASK_CONTENT_GRAPHICS, &rcBrushRect);
 			m_pRT->SetAntialiasMode(D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
-			rcBrushRect = D2D1::RectF(lampostSize.width * i * 3.f, 0.f, lampostSize.width * i * 3.f + lampostSize.width, lampostSize.height);
+			rcBrushRect = D2D1::RectF(lampostSize.width * i * 3.f, 0, lampostSize.width * i * 3.f + lampostSize.width, lampostSize.height);
 		}
 
-		D2D1_MATRIX_3X2_F flip = D2D1::Matrix3x2F(-1.f, 0.f, 0.f, 1.f, 0.f, 0.f);		//이미지 반전을 위해 반전행렬을 만든다.
-		D2D1_MATRIX_3X2_F restore = D2D1::Matrix3x2F::Translation(rtSize.width + characterSize.width * WidthScale, 0.f);	//반전행렬을 곱하면 x값이 전환되므로, 다시 이를 복원시켜줄 복원행렬을 만들어줌	
-		m_pRT->SetTransform(scale * spawn * D2D1::Matrix3x2F::Translation(mainCharacter->GetLocation()->left * WidthScale, mainCharacter->GetLocation()->top * HeightScale));
+		D2D1_MATRIX_3X2_F flip = D2D1::Matrix3x2F(-1.f, 0.f, 0.f, 1.f, 1.f, 1.f);		//이미지 반전을 위해 반전행렬을 만든다.
+		D2D1_MATRIX_3X2_F restore = D2D1::Matrix3x2F::Translation(characterSize.width,0);	//반전행렬을 곱하면 x값이 반전되므로, 다시 이를 복원시켜줄 복원행렬을 만들어줌	
+		m_pRT->SetTransform(D2D1::Matrix3x2F::Translation(mainCharacter->GetLocation().left, mainCharacter->GetLocation().top)* scale);
 		m_pRT->SetAntialiasMode(D2D1_ANTIALIAS_MODE_ALIASED);
+
+
+		LARGE_INTEGER CurrentTime;
+		QueryPerformanceCounter(&CurrentTime);
+		float elapsedTime = (float)((double)(CurrentTime.QuadPart - m_nPrevTime.QuadPart) / (double)(m_nFrequency.QuadPart));
+		m_nPrevTime = CurrentTime;
+		
+		if (mainCharacter->isMoving == false)
+		{
+			for (int i = 0; i < 4; i++)
+			{
+				mainCharacter->animTime[i] = 0.f;
+			}
+			mainCharacter->animPose = 0;
+		}
 
 		if (mainCharacter->lookLeft)
 		{
-			m_pRT->FillOpacityMask(m_pCharacterBitMask, m_pCharacterBitmapBrush, D2D1_OPACITY_MASK_CONTENT_GRAPHICS);
+			if (mainCharacter->animPose == 0)
+			{
+				m_pRT->FillOpacityMask(m_pCharacterBitMask, m_pCharacterBitmapBrush, D2D1_OPACITY_MASK_CONTENT_GRAPHICS);
+			}
+			else if (mainCharacter->animPose == 1)
+			{
+				m_pRT->FillOpacityMask(m_pCharacter2BitMask, m_pCharacter2BitmapBrush, D2D1_OPACITY_MASK_CONTENT_GRAPHICS);
+			}
+			else if(mainCharacter->animPose == 2)
+			{
+				m_pRT->FillOpacityMask(m_pCharacter3BitMask, m_pCharacter3BitmapBrush, D2D1_OPACITY_MASK_CONTENT_GRAPHICS);
+			}
 		}
 		else if (!mainCharacter->lookLeft)
 		{
-			m_pRT->SetTransform(scale * spawn * flip * restore * D2D1::Matrix3x2F::Translation((mainCharacter->GetLocation()->left * WidthScale), mainCharacter->GetLocation()->top * HeightScale));
-			m_pRT->FillOpacityMask(m_pCharacterBitMask, m_pCharacterBitmapBrush, D2D1_OPACITY_MASK_CONTENT_GRAPHICS);
+			if (mainCharacter->animPose == 0)
+			{
+				m_pRT->SetTransform(flip * restore* D2D1::Matrix3x2F::Translation((mainCharacter->GetLocation().left), mainCharacter->GetLocation().top) * scale);
+				m_pRT->FillOpacityMask(m_pCharacterBitMask, m_pCharacterBitmapBrush, D2D1_OPACITY_MASK_CONTENT_GRAPHICS);
+			}
+			else if (mainCharacter->animPose == 1)
+			{
+				m_pRT->SetTransform( flip * restore  * D2D1::Matrix3x2F::Translation((mainCharacter->GetLocation().left), mainCharacter->GetLocation().top ) * scale);
+				m_pRT->FillOpacityMask(m_pCharacter2BitMask, m_pCharacter2BitmapBrush, D2D1_OPACITY_MASK_CONTENT_GRAPHICS);
+			}
+			else if (mainCharacter->animPose == 2)
+			{
+				m_pRT->SetTransform(flip * restore * D2D1::Matrix3x2F::Translation((mainCharacter->GetLocation().left), mainCharacter->GetLocation().top ) * scale);
+				m_pRT->FillOpacityMask(m_pCharacter3BitMask, m_pCharacter3BitmapBrush, D2D1_OPACITY_MASK_CONTENT_GRAPHICS);
+			}
+		}
+		mainCharacter->animTime[mainCharacter->animPose] += elapsedTime*13.f;
+		if (mainCharacter->animTime[mainCharacter->animPose] > 2.f && mainCharacter->animPose !=0)
+		{
+			mainCharacter->animPose = (mainCharacter->animPose + 1) % 3;
+			if (mainCharacter->animPose == 0)
+				mainCharacter->animPose = 1;
+			mainCharacter->animTime[mainCharacter->animPose] = 0;
 		}
 		m_pRT->SetAntialiasMode(D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
 
-
-
 		D2D1::Matrix3x2F FirstLoc;
-		for (int i = 0; i < bulletQueue.size(); i++)
+		for (int i = 0; i < bulletVector.size(); i++)
 		{
 			QueryPerformanceFrequency(&m_nFrequency);
 			QueryPerformanceCounter(&m_nPrevTime);
-			if (shot == true && bulletQueue[i].isFlying==false)
+			if (shot == true && bulletVector[i].isFlying==false)
 			{
-				bulletQueue[i].isFlying = true;
+				bulletVector[i].isFlying = true;
 				shot = false;
 			}
-			if (bulletQueue[i].isFlying == true)
+			if (bulletVector[i].isFlying == true)
 			{
-				float length = m_Animation.GetValue(bulletQueue[i].anim_time);
-				if (bulletQueue[i].anim_time == 0.f)
+				float length = m_Animation.GetValue(bulletVector[i].anim_time);
+				if (bulletVector[i].anim_time == 0.f)
 				{
-					bulletQueue[i].y = mainCharacter->GetLocation()->bottom - 50.f;
+					bulletVector[i].FirstY = mainCharacter->GetLocation().bottom - 50.f;
+					bulletVector[i].currentXY.y = bulletVector[i].FirstY;
 					if (mainCharacter->lookLeft)
 					{
-						bulletQueue[i].flip = D2D1::Matrix3x2F(-1.f, 0.f, 0.f, 1.f, 0.f, 0.f);
-						bulletQueue[i].restore = D2D1::Matrix3x2F::Translation(rtSize.width * WidthScale, 0.f);
-						bulletQueue[i].x = mainCharacter->GetLocation()->left;
-						bulletQueue[i].isLeft = true;
+						bulletVector[i].flip = D2D1::Matrix3x2F(-1.f, 0.f, 0.f, 1.f, 1.f, 1.f);
+						bulletVector[i].FirstX = mainCharacter->GetLocation().left;
+						bulletVector[i].currentXY.x = mainCharacter->GetLocation().left;
+						bulletVector[i].isLeft = true;
 					}
 					else
 					{
-						bulletQueue[i].x = mainCharacter->GetLocation()->right;
-						bulletQueue[i].restore = D2D1::Matrix3x2F(1.f, 0.f, 0.f, 1.f, 0.f, 0.f);
-						bulletQueue[i].flip = D2D1::Matrix3x2F(1.f, 0.f, 0.f, 1.f, 0.f, 0.f);
-						bulletQueue[i].isLeft = false;
+						bulletVector[i].FirstX = mainCharacter->GetLocation().right;
+						bulletVector[i].currentXY.x = mainCharacter->GetLocation().right;
+						bulletVector[i].flip = D2D1::Matrix3x2F::Identity();	
+						bulletVector[i].isLeft = false;
 					}
 				}
-				if (bulletQueue[i].isLeft)
-					bulletQueue[i].direction = D2D1::Matrix3x2F::Translation(-length, 0);
-				else
-					bulletQueue[i].direction = D2D1::Matrix3x2F::Translation(length, 0);
-
-				FirstLoc = D2D1::Matrix3x2F::Translation(bulletQueue[i].x * WidthScale, bulletQueue[i].y * HeightScale);
-				m_pRT->SetTransform(scale * spawn * bulletQueue[i].flip * bulletQueue[i].restore * FirstLoc * bulletQueue[i].direction);
-				m_pRT->FillGeometry(m_pObjectGeometry, m_pGradientBlackBrush);
-
-				LARGE_INTEGER CurrentTime;
-				QueryPerformanceCounter(&CurrentTime);
-				float elapsedTime = (float)((double)(CurrentTime.QuadPart - m_nPrevTime.QuadPart) / (double)(m_nFrequency.QuadPart));
-				m_nPrevTime = CurrentTime;
-				bulletQueue[i].anim_time += elapsedTime * 10000;
-
-				if (bulletQueue[i].anim_time > 3.f)
+				if (bulletVector[i].isLeft)
 				{
-					bulletQueue[i].anim_time = 0.0f;
-					bulletQueue[i].isFlying = false;
+					bulletVector[i].direction = D2D1::Matrix3x2F::Translation(-length, 0);
+					bulletVector[i].currentXY.x = bulletVector[i].FirstX -length;
+
 				}
+				else
+				{
+					bulletVector[i].direction = D2D1::Matrix3x2F::Translation(length, 0);
+					bulletVector[i].currentXY.x = bulletVector[i].FirstX + length;
+				}
+				FirstLoc = D2D1::Matrix3x2F::Translation(bulletVector[i].FirstX, bulletVector[i].FirstY);
+				m_pRT->SetTransform(bulletVector[i].flip * FirstLoc  * bulletVector[i].direction * scale);
+				m_pRT->FillGeometry(m_pObjectGeometry, m_pGradientYellowBrush);
+				
+				QueryPerformanceCounter(&CurrentTime);
+				elapsedTime = (float)((double)(CurrentTime.QuadPart - m_nPrevTime.QuadPart) / (double)(m_nFrequency.QuadPart));
+				m_nPrevTime = CurrentTime;
+				bulletVector[i].anim_time += elapsedTime* 10000.f;
+				
+
+				if (bulletVector[i].currentXY.x < 0 || bulletVector[i].currentXY.x > DEFAULTWIDTH)
+				{
+					bulletVector[i].anim_time = 0.0f;
+					bulletVector[i].isFlying = false;
+				}
+				//충돌판정 여기에 추가
+
+
 			}
 		}
 
@@ -608,7 +723,7 @@ HRESULT DemoApp::OnRender()
 	return hr;
 }
 
-void DemoApp::OnResize(UINT width, UINT height)
+void ThirdHomework::OnResize(UINT width, UINT height)
 {
 	if (m_pRT)
 	{
@@ -620,21 +735,21 @@ void DemoApp::OnResize(UINT width, UINT height)
 	}
 }
 
-LRESULT CALLBACK DemoApp::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK ThirdHomework::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	LRESULT result = 0;
 
 	if (message == WM_CREATE)
 	{
 		LPCREATESTRUCT pcs = (LPCREATESTRUCT)lParam;
-		DemoApp* pDemoApp = (DemoApp*)pcs->lpCreateParams;
+		ThirdHomework* pDemoApp = (ThirdHomework*)pcs->lpCreateParams;
 		SetWindowLongPtrW(hwnd, GWLP_USERDATA, PtrToUlong(pDemoApp));
 
 		result = 1;
 	}
 	else
 	{
-		DemoApp* pDemoApp = reinterpret_cast<DemoApp*>(static_cast<LONG_PTR>(GetWindowLongPtrW(hwnd, GWLP_USERDATA)));
+		ThirdHomework* pDemoApp = reinterpret_cast<ThirdHomework*>(static_cast<LONG_PTR>(GetWindowLongPtrW(hwnd, GWLP_USERDATA)));
 
 		bool wasHandled = false;
 
@@ -657,12 +772,9 @@ LRESULT CALLBACK DemoApp::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM
 				if (wParam == 0x41)
 				{
 					shot = true;
-					for (int i = 0; i < bulletQueue.size(); i++)
-					{
-						if (bulletQueue[i].isFlying == false)
-							bulletQueue[i].anim_time = 0.0f;
-					}
 				}
+				if (wParam == VK_UP || wParam == VK_DOWN || wParam == VK_LEFT || wParam == VK_RIGHT)
+					mainCharacter->isMoving = false;
 			}
 			result = 0;
 			wasHandled = true;
@@ -675,6 +787,8 @@ LRESULT CALLBACK DemoApp::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM
 			result = 0;
 			wasHandled = true;
 			break;
+
+
 
 			case WM_PAINT:
 			{
@@ -706,7 +820,7 @@ LRESULT CALLBACK DemoApp::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM
 }
 
 // Creates a Direct2D bitmap from the specified file name.
-HRESULT DemoApp::LoadBitmapFromFile(ID2D1RenderTarget* pRenderTarget, IWICImagingFactory* pIWICFactory, PCWSTR uri, UINT destinationWidth, UINT destinationHeight, ID2D1Bitmap** ppBitmap)
+HRESULT ThirdHomework::LoadBitmapFromFile(ID2D1RenderTarget* pRenderTarget, IWICImagingFactory* pIWICFactory, PCWSTR uri, UINT destinationWidth, UINT destinationHeight, ID2D1Bitmap** ppBitmap)
 {
 	IWICBitmapDecoder* pDecoder = NULL;
 	IWICBitmapFrameDecode* pSource = NULL;
