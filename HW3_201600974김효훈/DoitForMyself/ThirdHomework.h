@@ -49,34 +49,36 @@ private:
 	IWICImagingFactory* m_pWICFactory;
 	ID2D1HwndRenderTarget* m_pRT;
 	
-	ID2D1PathGeometry* m_pPathGeometry;
-	ID2D1PathGeometry* m_pObjectGeometry;
-	
+	ID2D1PathGeometry* m_pBulletPathgeometry;
+	ID2D1PathGeometry* m_pMoon;
+
 	ID2D1RadialGradientBrush* m_pGradientYellowBrush;
 	ID2D1SolidColorBrush* m_pYellowBrush;
-	
-	ID2D1Bitmap* m_pSkyBitmap;
+	ID2D1SolidColorBrush* m_pBlackBrush;
 
+	ID2D1Bitmap* m_pSkyBitmap;
 	ID2D1Bitmap* m_pWallBitmap;
+	ID2D1Bitmap* m_pStreetBitmap;
 
 	ID2D1Bitmap* m_pBuildingBitmap;
 	ID2D1Bitmap* m_pBuildingBitMask;
-		
+	ID2D1BitmapBrush* m_pBuildingBitmapBrush;
+
+
 	ID2D1Bitmap* m_pLampostBitmap;
 	ID2D1Bitmap* m_pLampostBitMask;
+	ID2D1BitmapBrush* m_pLampostBitmapBrush;
+
 
 	ID2D1Bitmap* m_pFireBitmap;
 	ID2D1Bitmap* m_pFireBitMask;
-
-
 	ID2D1BitmapBrush* m_pFireBitmapBrush;
-	ID2D1BitmapBrush* m_pBuildingBitmapBrush;
-	ID2D1BitmapBrush* m_pLampostBitmapBrush;
 
+	
+	
 	ID2D1EllipseGeometry* m_pCircle1;
 	ID2D1EllipseGeometry* m_pCircle2;
 
-	ID2D1PathGeometry* m_pMoon;
 
 	AnimationLinear<float> m_Animation;
 
@@ -96,7 +98,20 @@ private:
 	ID2D1Bitmap* m_pCharacter3BitMask;
 	ID2D1BitmapBrush* m_pCharacter3BitmapBrush;
 
+	ID2D1Bitmap* m_pCharacter4Bitmap;
+	ID2D1Bitmap* m_pCharacter4BitMask;
+	ID2D1BitmapBrush* m_pCharacter4BitmapBrush;
 
+	ID2D1Bitmap* m_pCharacter5Bitmap;
+	ID2D1Bitmap* m_pCharacter5BitMask;
+	ID2D1BitmapBrush* m_pCharacter5BitmapBrush;
 
+	ID2D1Bitmap* m_pCharacter6Bitmap;
+	ID2D1Bitmap* m_pCharacter6BitMask;
+	ID2D1BitmapBrush* m_pCharacter6BitmapBrush;
+
+	ID2D1Bitmap* m_pCharacter7Bitmap;
+	ID2D1Bitmap* m_pCharacter7BitMask;
+	ID2D1BitmapBrush* m_pCharacter7BitmapBrush;
 };
 

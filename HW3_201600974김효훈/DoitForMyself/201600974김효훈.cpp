@@ -17,10 +17,10 @@
 
 #define BULLETATONCE 50
 
-std::unique_ptr<Character> mainCharacter;
-std::unique_ptr<Bullet[]> bullets;
-std::vector<Bullet> bulletVector;
-bool shot = false;
+std::unique_ptr<Character> g_MainCharacter;
+std::unique_ptr<Bullet[]> g_Bullets;
+std::vector<Bullet> g_BulletVector;
+bool g_Shot = false;
 
 // 응용 프로그램의 진입점 함수.
 int WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int /*nCmdShow*/)
@@ -48,11 +48,12 @@ ThirdHomework::ThirdHomework() :
 	m_pCircle1(NULL),
 	m_pCircle2(NULL),
 	m_pRT(NULL),
-	m_pPathGeometry(NULL),
-	m_pObjectGeometry(NULL),
+	m_pBulletPathgeometry(NULL),
 	m_pGradientYellowBrush(NULL),
 	m_pYellowBrush(NULL),
+	m_pBlackBrush(NULL),
 	m_Animation(),
+	m_pStreetBitmap(NULL),
 	m_pBuildingBitmap(NULL),
 	m_pBuildingBitMask(NULL),
 	m_pBuildingBitmapBrush(NULL),
@@ -72,7 +73,19 @@ ThirdHomework::ThirdHomework() :
 	m_pCharacter2BitMask(NULL),
 	m_pCharacter3Bitmap(NULL),
 	m_pCharacter3BitmapBrush(NULL),
-	m_pCharacter3BitMask(NULL)
+	m_pCharacter3BitMask(NULL),
+	m_pCharacter4Bitmap(NULL),
+	m_pCharacter4BitmapBrush(NULL),
+	m_pCharacter4BitMask(NULL),
+	m_pCharacter5Bitmap(NULL),
+	m_pCharacter5BitmapBrush(NULL),
+	m_pCharacter5BitMask(NULL),
+	m_pCharacter6Bitmap(NULL),
+	m_pCharacter6BitmapBrush(NULL),
+	m_pCharacter6BitMask(NULL),
+	m_pCharacter7Bitmap(NULL),
+	m_pCharacter7BitmapBrush(NULL),
+	m_pCharacter7BitMask(NULL)
 {
 }
 
@@ -80,10 +93,10 @@ ThirdHomework::~ThirdHomework()
 {
 	SAFE_RELEASE(m_pD2DFactory);
 	SAFE_RELEASE(m_pRT);
-	SAFE_RELEASE(m_pPathGeometry);
-	SAFE_RELEASE(m_pObjectGeometry);
+	SAFE_RELEASE(m_pBulletPathgeometry);
 	SAFE_RELEASE(m_pGradientYellowBrush);
 	SAFE_RELEASE(m_pYellowBrush);
+	SAFE_RELEASE(m_pBlackBrush);
 
 	SAFE_RELEASE(m_pBuildingBitmap);
 	SAFE_RELEASE(m_pBuildingBitMask);
@@ -95,6 +108,7 @@ ThirdHomework::~ThirdHomework()
 
 	SAFE_RELEASE(m_pSkyBitmap);
 	SAFE_RELEASE(m_pWallBitmap);
+	SAFE_RELEASE(m_pStreetBitmap);
 
 	SAFE_RELEASE(m_pLampostBitmap);
 	SAFE_RELEASE(m_pLampostBitmapBrush);
@@ -111,6 +125,22 @@ ThirdHomework::~ThirdHomework()
 	SAFE_RELEASE(m_pCharacter3Bitmap);
 	SAFE_RELEASE(m_pCharacter3BitmapBrush);
 	SAFE_RELEASE(m_pCharacter3BitMask);
+
+	SAFE_RELEASE(m_pCharacter4Bitmap);
+	SAFE_RELEASE(m_pCharacter4BitmapBrush);
+	SAFE_RELEASE(m_pCharacter4BitMask);
+
+	SAFE_RELEASE(m_pCharacter5Bitmap);
+	SAFE_RELEASE(m_pCharacter5BitmapBrush);
+	SAFE_RELEASE(m_pCharacter5BitMask);
+
+	SAFE_RELEASE(m_pCharacter6Bitmap);
+	SAFE_RELEASE(m_pCharacter6BitmapBrush);
+	SAFE_RELEASE(m_pCharacter6BitMask);
+
+	SAFE_RELEASE(m_pCharacter7Bitmap);
+	SAFE_RELEASE(m_pCharacter7BitmapBrush);
+	SAFE_RELEASE(m_pCharacter7BitMask);
 }
 
 HRESULT ThirdHomework::Initialize()
@@ -130,11 +160,12 @@ HRESULT ThirdHomework::Initialize()
 	wcex.lpszClassName = L"D2DDemoApp";
 	RegisterClassEx(&wcex);
 
-	mainCharacter = std::make_unique<Character>();
-	bullets = std::make_unique<Bullet[]>(BULLETATONCE);
+	g_MainCharacter = std::make_unique<Character>();
+	g_Bullets = std::make_unique<Bullet[]>(BULLETATONCE);
+	
 	for (int i = 0; i < BULLETATONCE; i++)
 	{
-		bulletVector.push_back(bullets[i]);
+		g_BulletVector.push_back(g_Bullets[i]);
 	}
 
 	hr = CreateDeviceIndependentResources();
@@ -146,19 +177,14 @@ HRESULT ThirdHomework::Initialize()
 		hr = m_hwnd ? S_OK : E_FAIL;
 		if (SUCCEEDED(hr))
 		{
-			float length = 0;
-			hr = m_pPathGeometry->ComputeLength(NULL, &length);
+			m_Animation.SetStart(0); //start at beginning of path
+			m_Animation.SetEnd(DEFAULTWIDTH); //length at end of path
+			m_Animation.SetDuration(5.0f); //seconds
 
-			if (SUCCEEDED(hr))
-			{
-				m_Animation.SetStart(0); //start at beginning of path
-				m_Animation.SetEnd(length); //length at end of path
-				m_Animation.SetDuration(10.0f); //seconds
-
-				ShowWindow(m_hwnd, SW_SHOWNORMAL);
-				UpdateWindow(m_hwnd);
-			}
+			ShowWindow(m_hwnd, SW_SHOWNORMAL);
+			UpdateWindow(m_hwnd);
 		}
+		
 	}
 
 	return hr;
@@ -177,39 +203,14 @@ HRESULT ThirdHomework::CreateDeviceIndependentResources()
 		hr = CoCreateInstance(CLSID_WICImagingFactory, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&m_pWICFactory));
 	}
 
+	// 총알 생성
 	if (SUCCEEDED(hr))
 	{
-		hr = m_pD2DFactory->CreatePathGeometry(&m_pPathGeometry);
+		hr = m_pD2DFactory->CreatePathGeometry(&m_pBulletPathgeometry);
 	}
 	if (SUCCEEDED(hr))
 	{
-		hr = m_pPathGeometry->Open(&pSink);
-	}
-	if (SUCCEEDED(hr))
-	{
-		D2D1_POINT_2F currentLocation = { 0, 0 };
-
-		pSink->BeginFigure(D2D1::Point2F(0, 0), D2D1_FIGURE_BEGIN_FILLED);
-
-		pSink->AddLine(D2D1::Point2F(0, 0));
-		pSink->AddLine(D2D1::Point2F(14000, 0));
-
-		pSink->EndFigure(D2D1_FIGURE_END_OPEN);
-
-		hr = pSink->Close();
-	}
-
-
-	SAFE_RELEASE(pSink);
-
-	// 간단한 삼각형 모양의 경로 기하를 생성함.
-	if (SUCCEEDED(hr))
-	{
-		hr = m_pD2DFactory->CreatePathGeometry(&m_pObjectGeometry);
-	}
-	if (SUCCEEDED(hr))
-	{
-		hr = m_pObjectGeometry->Open(&pSink);
+		hr = m_pBulletPathgeometry->Open(&pSink);
 	}
 	if (SUCCEEDED(hr))
 	{
@@ -298,6 +299,10 @@ HRESULT ThirdHomework::CreateDeviceResources()
 		}
 		if (SUCCEEDED(hr))
 		{
+			hr = LoadBitmapFromFile(m_pRT, m_pWICFactory, L".\\Street.jpg", 100, 0, &m_pStreetBitmap);
+		}
+		if (SUCCEEDED(hr))
+		{
 			hr = LoadBitmapFromFile(m_pRT, m_pWICFactory, L".\\Lampost.png", 100, 0, &m_pLampostBitmap);
 		}
 		if (SUCCEEDED(hr))
@@ -342,6 +347,39 @@ HRESULT ThirdHomework::CreateDeviceResources()
 
 		if (SUCCEEDED(hr))
 		{
+			hr = LoadBitmapFromFile(m_pRT, m_pWICFactory, L".\\Character4.png", 100, 0, &m_pCharacter4Bitmap);
+		}
+		if (SUCCEEDED(hr))
+		{
+			hr = LoadBitmapFromFile(m_pRT, m_pWICFactory, L".\\Character4Mask.png", 100, 0, &m_pCharacter4BitMask);
+		}
+
+		if (SUCCEEDED(hr))
+		{
+			hr = LoadBitmapFromFile(m_pRT, m_pWICFactory, L".\\Character5.png", 100, 0, &m_pCharacter5Bitmap);
+		}
+		if (SUCCEEDED(hr))
+		{
+			hr = LoadBitmapFromFile(m_pRT, m_pWICFactory, L".\\Character5Mask.png", 100, 0, &m_pCharacter5BitMask);
+		}
+		if (SUCCEEDED(hr))
+		{
+			hr = LoadBitmapFromFile(m_pRT, m_pWICFactory, L".\\Character6.png", 100, 0, &m_pCharacter6Bitmap);
+		}
+		if (SUCCEEDED(hr))
+		{
+			hr = LoadBitmapFromFile(m_pRT, m_pWICFactory, L".\\Character6Mask.png", 100, 0, &m_pCharacter6BitMask);
+		}
+		if (SUCCEEDED(hr))
+		{
+			hr = LoadBitmapFromFile(m_pRT, m_pWICFactory, L".\\Character7.png", 100, 0, &m_pCharacter7Bitmap);
+		}
+		if (SUCCEEDED(hr))
+		{
+			hr = LoadBitmapFromFile(m_pRT, m_pWICFactory, L".\\Character7Mask.png", 100, 0, &m_pCharacter7BitMask);
+		}
+		if (SUCCEEDED(hr))
+		{
 			// 계조 명세 지점 구조체인 D2D1_GRADIENT_STOP 구조체의 배열을 생성.
 			ID2D1GradientStopCollection* pGradientStops = NULL;
 
@@ -367,6 +405,11 @@ HRESULT ThirdHomework::CreateDeviceResources()
 		if (SUCCEEDED(hr))
 		{
 			hr = m_pRT->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Yellow), &m_pYellowBrush);
+		}
+
+		if (SUCCEEDED(hr))
+		{
+			hr = m_pRT->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), &m_pBlackBrush);
 		}
 
 		if (SUCCEEDED(hr))
@@ -398,6 +441,23 @@ HRESULT ThirdHomework::CreateDeviceResources()
 			{
 				hr = m_pRT->CreateBitmapBrush(m_pCharacter3Bitmap, propertiesXClampYClamp, &m_pCharacter3BitmapBrush);
 			}
+
+			if (SUCCEEDED(hr))
+			{
+				hr = m_pRT->CreateBitmapBrush(m_pCharacter4Bitmap, propertiesXClampYClamp, &m_pCharacter4BitmapBrush);
+			}
+			if (SUCCEEDED(hr))
+			{
+				hr = m_pRT->CreateBitmapBrush(m_pCharacter5Bitmap, propertiesXClampYClamp, &m_pCharacter5BitmapBrush);
+			}
+			if (SUCCEEDED(hr))
+			{
+				hr = m_pRT->CreateBitmapBrush(m_pCharacter6Bitmap, propertiesXClampYClamp, &m_pCharacter6BitmapBrush);
+			}
+			if (SUCCEEDED(hr))
+			{
+				hr = m_pRT->CreateBitmapBrush(m_pCharacter7Bitmap, propertiesXClampYClamp, &m_pCharacter7BitmapBrush);
+			}
 		}
 	}
 
@@ -409,6 +469,7 @@ void ThirdHomework::DiscardDeviceResources()
 	SAFE_RELEASE(m_pRT);
 	SAFE_RELEASE(m_pGradientYellowBrush);
 	SAFE_RELEASE(m_pYellowBrush);
+	SAFE_RELEASE(m_pBlackBrush);
 
 	SAFE_RELEASE(m_pBuildingBitmap);
 	SAFE_RELEASE(m_pBuildingBitMask);
@@ -424,6 +485,7 @@ void ThirdHomework::DiscardDeviceResources()
 
 	SAFE_RELEASE(m_pSkyBitmap);
 	SAFE_RELEASE(m_pWallBitmap);
+	SAFE_RELEASE(m_pStreetBitmap);
 
 	SAFE_RELEASE(m_pCharacterBitmap);
 	SAFE_RELEASE(m_pCharacterBitmapBrush);
@@ -437,6 +499,21 @@ void ThirdHomework::DiscardDeviceResources()
 	SAFE_RELEASE(m_pCharacter3BitmapBrush);
 	SAFE_RELEASE(m_pCharacter3BitMask)
 
+	SAFE_RELEASE(m_pCharacter4Bitmap);
+	SAFE_RELEASE(m_pCharacter4BitmapBrush);
+	SAFE_RELEASE(m_pCharacter4BitMask);
+
+	SAFE_RELEASE(m_pCharacter5Bitmap);
+	SAFE_RELEASE(m_pCharacter5BitmapBrush);
+	SAFE_RELEASE(m_pCharacter5BitMask);
+
+	SAFE_RELEASE(m_pCharacter6Bitmap);
+	SAFE_RELEASE(m_pCharacter6BitmapBrush);
+	SAFE_RELEASE(m_pCharacter6BitMask);
+
+	SAFE_RELEASE(m_pCharacter7Bitmap);
+	SAFE_RELEASE(m_pCharacter7BitmapBrush);
+	SAFE_RELEASE(m_pCharacter7BitMask);
 }
 
 void ThirdHomework::RunMessageLoop()
@@ -448,7 +525,7 @@ void ThirdHomework::RunMessageLoop()
 
 	D2D1_SIZE_F characterSize = m_pCharacterBitmap->GetSize();
 	D2D1_SIZE_F rtSize = m_pRT->GetSize();
-	mainCharacter->SetFirst((rtSize.width / 2.f) - (characterSize.width/2) , rtSize.height / 1.45f- (characterSize.height / 2), (rtSize.width / 2.f) + (characterSize.width/2), rtSize.height / 1.45f + (characterSize.height/2));
+	g_MainCharacter->SetFirst((rtSize.width / 2.f) - (characterSize.width/2) , rtSize.height / 1.45f- (characterSize.height / 2), (rtSize.width / 2.f) + (characterSize.width/2), rtSize.height / 1.45f + (characterSize.height/2));
 
 	while (!bdone)
 	{
@@ -478,40 +555,51 @@ HRESULT ThirdHomework::OnRender()
 		float WidthScale = rtSize.width / DEFAULTWIDTH;
 		float HeightScale = rtSize.height / DEFAULTHEIGHT;
 
+
+		if (g_MainCharacter->m_IsMoving == false && g_MainCharacter->m_AnimTime[g_MainCharacter->m_AnimPose] == 0.f)
+		{
+			for (int i = 0; i < 6; i++)
+			{
+				g_MainCharacter->m_AnimTime[i] = 0.f;
+			}
+			g_MainCharacter->m_AnimPose = idle;
+		}
+
 		if (GetAsyncKeyState(VK_LEFT) < 0)
 		{
-			mainCharacter->lookLeft = true;
-			if ((mainCharacter->GetLocation().left >= 0))
-				mainCharacter->Move(false, -5.f);
-			if (mainCharacter->isMoving == false)
-				mainCharacter->animPose = 1;
-			mainCharacter->isMoving = true;
+			g_MainCharacter->m_LookLeft = true;
+			if ((g_MainCharacter->GetLocation().left >= 0))
+				g_MainCharacter->Move(false, -5.f);
+			if (g_MainCharacter->m_IsMoving == false)
+				g_MainCharacter->m_AnimPose = step;
+			g_MainCharacter->m_IsMoving = true;
 		}
 		if (GetAsyncKeyState(VK_RIGHT) < 0)
 		{
-			mainCharacter->lookLeft = false;
-			if ((mainCharacter->GetLocation().right <= DEFAULTWIDTH))
-				mainCharacter->Move(false, 5.f);
-			if (mainCharacter->isMoving == false)
-				mainCharacter->animPose = 1;
-			mainCharacter->isMoving = true;
+			g_MainCharacter->m_LookLeft = false;
+			if ((g_MainCharacter->GetLocation().right <= DEFAULTWIDTH))
+				g_MainCharacter->Move(false, 5.f);
+			if (g_MainCharacter->m_IsMoving == false)
+				g_MainCharacter->m_AnimPose = step;
+			g_MainCharacter->m_IsMoving = true;
 		}
 		if (GetAsyncKeyState(VK_UP) < 0)
 		{
-			if ((mainCharacter->GetLocation().bottom>= (DEFAULTHEIGHT/1.45f)))
-				mainCharacter->Move(true, -4.f);
-			if (mainCharacter->isMoving == false)
-				mainCharacter->animPose = 1;
-			mainCharacter->isMoving = true;
+			if ((g_MainCharacter->GetLocation().bottom>= (DEFAULTHEIGHT/1.45f)))
+				g_MainCharacter->Move(true, -4.f);
+			if (g_MainCharacter->m_IsMoving == false)
+				g_MainCharacter->m_AnimPose = step;
+			g_MainCharacter->m_IsMoving = true;
 		}
 		if (GetAsyncKeyState(VK_DOWN) < 0)
 		{
-			if ((mainCharacter->GetLocation().bottom <= (DEFAULTHEIGHT)))
-				mainCharacter->Move(true, 4.f);
-			if (mainCharacter->isMoving == false)
-				mainCharacter->animPose = 1;
-			mainCharacter->isMoving = true;
+			if ((g_MainCharacter->GetLocation().bottom <= (DEFAULTHEIGHT)))
+				g_MainCharacter->Move(true, 4.f);
+			if (g_MainCharacter->m_IsMoving == false)
+				g_MainCharacter->m_AnimPose = step;
+			g_MainCharacter->m_IsMoving = true;
 		}
+
 
 
 		D2D1_SIZE_F lampostSize = m_pLampostBitmap->GetSize();
@@ -531,19 +619,25 @@ HRESULT ThirdHomework::OnRender()
 		m_pRT->Clear(D2D1::ColorF(D2D1::ColorF::DimGray));
 		m_pRT->SetTransform(D2D1::Matrix3x2F::Identity());
 
+		m_pRT->SetTransform(scale);
+
+		for (int i = 0; i < 3; i++)
+			for (int j = 0; j < 20; j++)
+				m_pRT->DrawBitmap(m_pStreetBitmap, D2D1::RectF(100 * j, 1000.f - 150.f * i, 105.f + 100 * j, 1200.f - 100 * i));
+
+
 		D2D1_ELLIPSE light = D2D1::Ellipse(D2D1::Point2F(0, 0), 200.f, 200.f);
-		m_pRT->SetTransform(D2D1::Matrix3x2F::Translation(lampostSize.width, lampostSize.height*7.f) * scale);
-		for (int i = 1; i < 5; i++)
+		for (int i = 0; i < 5; i++)
 		{
+			m_pRT->SetTransform(D2D1::Matrix3x2F::Translation(100 + 600.f * i , lampostSize.height * 7.f) *scale);
 			m_pRT->FillEllipse(&light, m_pGradientYellowBrush);
-			m_pRT->SetTransform(D2D1::Matrix3x2F::Translation(100 * i *6.5f, lampostSize.height * 7.f) *scale);
 		}
 
 		m_pRT->SetTransform(scale);
 		// 이동 동선 기하 경로가 화면 중심에 그려지도록 함.
 		m_pRT->DrawBitmap(m_pSkyBitmap, D2D1::RectF(0, 0, 2000.f, 700.f));
 
-
+		
 		m_pRT->SetTransform(D2D1::Matrix3x2F::Translation(0, FireSize.height / 2.f) * scale2 * scale);
 		D2D1_RECT_F rcBrushRect = D2D1::RectF(0, 0, FireSize.width, FireSize.height);
 		for (int i = 1; i < 7; i++)
@@ -553,6 +647,9 @@ HRESULT ThirdHomework::OnRender()
 			m_pRT->SetAntialiasMode(D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
 			rcBrushRect = D2D1::RectF(FireSize.width * i * 3.f, 0, FireSize.width * i * 4.f + FireSize.width, FireSize.height);
 		}
+
+
+
 
 		m_pRT->SetTransform((D2D1::Matrix3x2F::Translation(0, FireSize.height / 1.7f) * scale2 * scale));
 		rcBrushRect = D2D1::RectF(0, 0, buildingSize.width, buildingSize.height);
@@ -564,13 +661,22 @@ HRESULT ThirdHomework::OnRender()
 			rcBrushRect = D2D1::RectF(buildingSize.width * i, 0, buildingSize.width * i + buildingSize.width, buildingSize.height);
 		}
 
+
+
+
 		m_pRT->SetTransform(scale);
 		for (int i = 0; i < 15; i++)
-			m_pRT->DrawBitmap(m_pWallBitmap, D2D1::RectF(wallSize.width * 1.5f * i, wallSize.height*8, wallSize.width * 1.5f * i + wallSize.width * 1.5f, wallSize.height * 10.5));
+			m_pRT->DrawBitmap(m_pWallBitmap, D2D1::RectF(wallSize.width * 1.5f * i, wallSize.height*8.f, wallSize.width * 1.5f * i + wallSize.width * 1.5f, wallSize.height * 11.f));
+
+
+
 
 
 		m_pRT->SetTransform(scale);
 		m_pRT->FillGeometry(m_pMoon, m_pYellowBrush, NULL);
+
+
+
 
 
 		m_pRT->SetTransform(D2D1::Matrix3x2F::Translation(0, lampostSize.height/1.5f) * scale2 *scale );
@@ -582,11 +688,20 @@ HRESULT ThirdHomework::OnRender()
 			m_pRT->SetAntialiasMode(D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
 			rcBrushRect = D2D1::RectF(lampostSize.width * i * 3.f, 0, lampostSize.width * i * 3.f + lampostSize.width, lampostSize.height);
 		}
+		m_pRT->SetAntialiasMode(D2D1_ANTIALIAS_MODE_ALIASED);
 
 		D2D1_MATRIX_3X2_F flip = D2D1::Matrix3x2F(-1.f, 0.f, 0.f, 1.f, 1.f, 1.f);		//이미지 반전을 위해 반전행렬을 만든다.
 		D2D1_MATRIX_3X2_F restore = D2D1::Matrix3x2F::Translation(characterSize.width,0);	//반전행렬을 곱하면 x값이 반전되므로, 다시 이를 복원시켜줄 복원행렬을 만들어줌	
-		m_pRT->SetTransform(D2D1::Matrix3x2F::Translation(mainCharacter->GetLocation().left, mainCharacter->GetLocation().top)* scale);
-		m_pRT->SetAntialiasMode(D2D1_ANTIALIAS_MODE_ALIASED);
+		D2D1_MATRIX_3X2_F adjustLocation = D2D1::Matrix3x2F::Translation((g_MainCharacter->GetLocation().left), g_MainCharacter->GetLocation().top);
+		
+		D2D1_ELLIPSE shadow = D2D1::Ellipse(D2D1::Point2F(0, 0), 50.f, 15.f);
+
+		m_pRT->SetTransform(D2D1::Matrix3x2F::Translation(65.f + (-25.f * (g_MainCharacter->m_LookLeft ==false?1:0)), 115.f)  * adjustLocation * scale);
+		m_pRT->FillEllipse(&shadow, m_pBlackBrush);
+
+		m_pRT->SetTransform(adjustLocation* scale);
+		
+		
 
 
 		LARGE_INTEGER CurrentTime;
@@ -594,119 +709,172 @@ HRESULT ThirdHomework::OnRender()
 		float elapsedTime = (float)((double)(CurrentTime.QuadPart - m_nPrevTime.QuadPart) / (double)(m_nFrequency.QuadPart));
 		m_nPrevTime = CurrentTime;
 		
-		if (mainCharacter->isMoving == false)
-		{
-			for (int i = 0; i < 4; i++)
-			{
-				mainCharacter->animTime[i] = 0.f;
-			}
-			mainCharacter->animPose = 0;
-		}
+		if (g_MainCharacter->m_IsShooting==true && g_MainCharacter->m_IsMoving ==false)
+			g_MainCharacter->m_AnimPose = shoot;
+		
+		if (g_MainCharacter->m_IsShooting==true && g_MainCharacter->m_IsMoving == true)
+			g_MainCharacter->m_AnimPose = runningShoot;
+		
+		
+		g_MainCharacter->m_preAnimPose = g_MainCharacter->m_AnimPose;
 
-		if (mainCharacter->lookLeft)
+		if (g_MainCharacter->m_LookLeft)
 		{
-			if (mainCharacter->animPose == 0)
+			if (g_MainCharacter->m_AnimPose == idle)
 			{
 				m_pRT->FillOpacityMask(m_pCharacterBitMask, m_pCharacterBitmapBrush, D2D1_OPACITY_MASK_CONTENT_GRAPHICS);
 			}
-			else if (mainCharacter->animPose == 1)
+			else if (g_MainCharacter->m_AnimPose == step)
 			{
 				m_pRT->FillOpacityMask(m_pCharacter2BitMask, m_pCharacter2BitmapBrush, D2D1_OPACITY_MASK_CONTENT_GRAPHICS);
 			}
-			else if(mainCharacter->animPose == 2)
+			else if(g_MainCharacter->m_AnimPose == run)
 			{
 				m_pRT->FillOpacityMask(m_pCharacter3BitMask, m_pCharacter3BitmapBrush, D2D1_OPACITY_MASK_CONTENT_GRAPHICS);
 			}
-		}
-		else if (!mainCharacter->lookLeft)
-		{
-			if (mainCharacter->animPose == 0)
+			else if (g_MainCharacter->m_AnimPose == shoot)
 			{
-				m_pRT->SetTransform(flip * restore* D2D1::Matrix3x2F::Translation((mainCharacter->GetLocation().left), mainCharacter->GetLocation().top) * scale);
+				m_pRT->SetTransform(D2D1::Matrix3x2F::Translation(-25.f,-5.f) * D2D1::Matrix3x2F::Scale(1.35f, 1.35f) * adjustLocation * scale);
+				m_pRT->FillOpacityMask(m_pCharacter4BitMask, m_pCharacter4BitmapBrush, D2D1_OPACITY_MASK_CONTENT_GRAPHICS);
+			}
+			else if (g_MainCharacter->m_AnimPose == runningShoot)
+			{
+				m_pRT->SetTransform(D2D1::Matrix3x2F::Translation(-40.f, -5.f) * D2D1::Matrix3x2F::Scale(1.5f, 1.5f) * adjustLocation * scale);
+				m_pRT->FillOpacityMask(m_pCharacter5BitMask, m_pCharacter5BitmapBrush, D2D1_OPACITY_MASK_CONTENT_GRAPHICS);
+			}
+			else if (g_MainCharacter->m_AnimPose == runningShoot2)
+			{
+				m_pRT->SetTransform(D2D1::Matrix3x2F::Translation(-40.f, -5.f) * D2D1::Matrix3x2F::Scale(1.5f, 1.5f) * adjustLocation * scale);
+				m_pRT->FillOpacityMask(m_pCharacter6BitMask, m_pCharacter6BitmapBrush, D2D1_OPACITY_MASK_CONTENT_GRAPHICS);
+			}
+			else if (g_MainCharacter->m_AnimPose == runningShoot3)
+			{
+				m_pRT->SetTransform(D2D1::Matrix3x2F::Translation(-20.f, -5.f) * D2D1::Matrix3x2F::Scale(1.2f, 1.2f) * adjustLocation * scale);
+				m_pRT->FillOpacityMask(m_pCharacter7BitMask, m_pCharacter7BitmapBrush, D2D1_OPACITY_MASK_CONTENT_GRAPHICS);
+			}
+		}
+		else if (!g_MainCharacter->m_LookLeft)
+		{
+			if (g_MainCharacter->m_AnimPose == idle)
+			{
+				m_pRT->SetTransform(flip * restore* adjustLocation * scale);
 				m_pRT->FillOpacityMask(m_pCharacterBitMask, m_pCharacterBitmapBrush, D2D1_OPACITY_MASK_CONTENT_GRAPHICS);
 			}
-			else if (mainCharacter->animPose == 1)
+			else if (g_MainCharacter->m_AnimPose == step)
 			{
-				m_pRT->SetTransform( flip * restore  * D2D1::Matrix3x2F::Translation((mainCharacter->GetLocation().left), mainCharacter->GetLocation().top ) * scale);
+				m_pRT->SetTransform(flip* restore  * adjustLocation* scale);
 				m_pRT->FillOpacityMask(m_pCharacter2BitMask, m_pCharacter2BitmapBrush, D2D1_OPACITY_MASK_CONTENT_GRAPHICS);
 			}
-			else if (mainCharacter->animPose == 2)
+			else if (g_MainCharacter->m_AnimPose == run)
 			{
-				m_pRT->SetTransform(flip * restore * D2D1::Matrix3x2F::Translation((mainCharacter->GetLocation().left), mainCharacter->GetLocation().top ) * scale);
+				m_pRT->SetTransform(flip * restore * adjustLocation * scale);
 				m_pRT->FillOpacityMask(m_pCharacter3BitMask, m_pCharacter3BitmapBrush, D2D1_OPACITY_MASK_CONTENT_GRAPHICS);
 			}
+			else if (g_MainCharacter->m_AnimPose == shoot)
+			{
+				m_pRT->SetTransform(D2D1::Matrix3x2F::Translation(-25.f,-5.f) *D2D1::Matrix3x2F::Scale(1.35f, 1.35f) * flip * restore * adjustLocation * scale);
+				m_pRT->FillOpacityMask(m_pCharacter4BitMask, m_pCharacter4BitmapBrush, D2D1_OPACITY_MASK_CONTENT_GRAPHICS);
+			}
+			else if (g_MainCharacter->m_AnimPose == runningShoot)
+			{
+				m_pRT->SetTransform(D2D1::Matrix3x2F::Translation(-40.f, -5.f) * D2D1::Matrix3x2F::Scale(1.5f, 1.5f) * flip * restore * adjustLocation * scale);
+				m_pRT->FillOpacityMask(m_pCharacter5BitMask, m_pCharacter5BitmapBrush, D2D1_OPACITY_MASK_CONTENT_GRAPHICS);
+			}
+			else if (g_MainCharacter->m_AnimPose == runningShoot2)
+			{
+				m_pRT->SetTransform(D2D1::Matrix3x2F::Translation(-40.f, -5.f) * D2D1::Matrix3x2F::Scale(1.5f, 1.5f) * flip * restore * adjustLocation * scale);
+				m_pRT->FillOpacityMask(m_pCharacter6BitMask, m_pCharacter6BitmapBrush, D2D1_OPACITY_MASK_CONTENT_GRAPHICS);
+			}
+			else if (g_MainCharacter->m_AnimPose == runningShoot3)
+			{
+				m_pRT->SetTransform(D2D1::Matrix3x2F::Translation(-20.f, -5.f) * D2D1::Matrix3x2F::Scale(1.2f, 1.2f) * flip * restore * adjustLocation * scale);
+				m_pRT->FillOpacityMask(m_pCharacter7BitMask, m_pCharacter7BitmapBrush, D2D1_OPACITY_MASK_CONTENT_GRAPHICS);
+			}
 		}
-		mainCharacter->animTime[mainCharacter->animPose] += elapsedTime*13.f;
-		if (mainCharacter->animTime[mainCharacter->animPose] > 2.f && mainCharacter->animPose !=0)
+		
+		g_MainCharacter->m_AnimTime[g_MainCharacter->m_AnimPose] += elapsedTime*15.f;	
+		if (g_MainCharacter->m_AnimTime[g_MainCharacter->m_AnimPose] > 2.f && g_MainCharacter->m_AnimPose !=idle)
 		{
-			mainCharacter->animPose = (mainCharacter->animPose + 1) % 3;
-			if (mainCharacter->animPose == 0)
-				mainCharacter->animPose = 1;
-			mainCharacter->animTime[mainCharacter->animPose] = 0;
+			g_MainCharacter->m_AnimTime[g_MainCharacter->m_AnimPose] = 0.f;
+
+			if (g_MainCharacter->m_preAnimPose == idle || g_MainCharacter->m_preAnimPose == step || g_MainCharacter->m_preAnimPose == run)
+				g_MainCharacter->m_AnimPose = (g_MainCharacter->m_preAnimPose + 1) % 3;
+			else if (g_MainCharacter->m_preAnimPose == shoot)
+				g_MainCharacter->m_AnimPose = idle;
+			else
+				g_MainCharacter->m_AnimPose = (g_MainCharacter->m_preAnimPose + 1) % 7;
+
+			if (g_MainCharacter->m_AnimPose == idle)
+				g_MainCharacter->m_AnimPose = step;
+
+			g_MainCharacter->m_IsShooting = false;
 		}
 		m_pRT->SetAntialiasMode(D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
 
+
+
+
+
+		float length =0.f;
 		D2D1::Matrix3x2F FirstLoc;
-		for (int i = 0; i < bulletVector.size(); i++)
+		for (size_t i = 0; i < g_BulletVector.size(); i++)
 		{
 			QueryPerformanceFrequency(&m_nFrequency);
 			QueryPerformanceCounter(&m_nPrevTime);
-			if (shot == true && bulletVector[i].isFlying==false)
+			if (g_Shot == true && g_BulletVector[i].m_IsFlying==false)
 			{
-				bulletVector[i].isFlying = true;
-				shot = false;
+				g_BulletVector[i].m_IsFlying = true;
+				g_Shot = false;
 			}
-			if (bulletVector[i].isFlying == true)
+			if (g_BulletVector[i].m_IsFlying == true)
 			{
-				float length = m_Animation.GetValue(bulletVector[i].anim_time);
-				if (bulletVector[i].anim_time == 0.f)
+				length = m_Animation.GetValue(g_BulletVector[i].m_AnimTime);
+				if (g_BulletVector[i].m_AnimTime == 0.f)
 				{
-					bulletVector[i].FirstY = mainCharacter->GetLocation().bottom - 50.f;
-					bulletVector[i].currentXY.y = bulletVector[i].FirstY;
-					if (mainCharacter->lookLeft)
+					g_BulletVector[i].m_FirstY = g_MainCharacter->GetLocation().bottom - 50.f;
+					g_BulletVector[i].m_CurrentXY.y = g_BulletVector[i].m_FirstY;
+					if (g_MainCharacter->m_LookLeft)
 					{
-						bulletVector[i].flip = D2D1::Matrix3x2F(-1.f, 0.f, 0.f, 1.f, 1.f, 1.f);
-						bulletVector[i].FirstX = mainCharacter->GetLocation().left;
-						bulletVector[i].currentXY.x = mainCharacter->GetLocation().left;
-						bulletVector[i].isLeft = true;
+						g_BulletVector[i].m_Flip = D2D1::Matrix3x2F(-1.f, 0.f, 0.f, 1.f, 1.f, 1.f);
+						g_BulletVector[i].m_FirstX = g_MainCharacter->GetLocation().left;
+						g_BulletVector[i].m_CurrentXY.x = g_MainCharacter->GetLocation().left;
+						g_BulletVector[i].m_IsLeft = true;
 					}
 					else
 					{
-						bulletVector[i].FirstX = mainCharacter->GetLocation().right;
-						bulletVector[i].currentXY.x = mainCharacter->GetLocation().right;
-						bulletVector[i].flip = D2D1::Matrix3x2F::Identity();	
-						bulletVector[i].isLeft = false;
+						g_BulletVector[i].m_FirstX = g_MainCharacter->GetLocation().right;
+						g_BulletVector[i].m_CurrentXY.x = g_MainCharacter->GetLocation().right;
+						g_BulletVector[i].m_Flip = D2D1::Matrix3x2F::Identity();	
+						g_BulletVector[i].m_IsLeft = false;
 					}
 				}
-				if (bulletVector[i].isLeft)
+				if (g_BulletVector[i].m_IsLeft)
 				{
-					bulletVector[i].direction = D2D1::Matrix3x2F::Translation(-length, 0);
-					bulletVector[i].currentXY.x = bulletVector[i].FirstX -length;
+					g_BulletVector[i].m_Direction = D2D1::Matrix3x2F::Translation(-length-50.f,-25.f);
+					g_BulletVector[i].m_CurrentXY.x = g_BulletVector[i].m_FirstX -length;
 
 				}
 				else
 				{
-					bulletVector[i].direction = D2D1::Matrix3x2F::Translation(length, 0);
-					bulletVector[i].currentXY.x = bulletVector[i].FirstX + length;
+					g_BulletVector[i].m_Direction = D2D1::Matrix3x2F::Translation(length+50.f,-25.f);
+					g_BulletVector[i].m_CurrentXY.x = g_BulletVector[i].m_FirstX + length;
 				}
-				FirstLoc = D2D1::Matrix3x2F::Translation(bulletVector[i].FirstX, bulletVector[i].FirstY);
-				m_pRT->SetTransform(bulletVector[i].flip * FirstLoc  * bulletVector[i].direction * scale);
-				m_pRT->FillGeometry(m_pObjectGeometry, m_pGradientYellowBrush);
+				FirstLoc = D2D1::Matrix3x2F::Translation(g_BulletVector[i].m_FirstX, g_BulletVector[i].m_FirstY);
+				m_pRT->SetTransform(g_BulletVector[i].m_Flip * FirstLoc * g_BulletVector[i].m_Direction* scale);
+				m_pRT->FillGeometry(m_pBulletPathgeometry, m_pGradientYellowBrush);
 				
 				QueryPerformanceCounter(&CurrentTime);
 				elapsedTime = (float)((double)(CurrentTime.QuadPart - m_nPrevTime.QuadPart) / (double)(m_nFrequency.QuadPart));
 				m_nPrevTime = CurrentTime;
-				bulletVector[i].anim_time += elapsedTime* 10000.f;
+				g_BulletVector[i].m_AnimTime += elapsedTime* 50000.f;
 				
 
-				if (bulletVector[i].currentXY.x < 0 || bulletVector[i].currentXY.x > DEFAULTWIDTH)
+				if (g_BulletVector[i].m_CurrentXY.x < 0 || g_BulletVector[i].m_CurrentXY.x > DEFAULTWIDTH)
 				{
-					bulletVector[i].anim_time = 0.0f;
-					bulletVector[i].isFlying = false;
+					g_BulletVector[i].m_AnimTime = 0.0f;
+					g_BulletVector[i].m_IsFlying = false;
 				}
 				//충돌판정 여기에 추가
-
-
 			}
 		}
 
@@ -771,10 +939,11 @@ LRESULT CALLBACK ThirdHomework::WndProc(HWND hwnd, UINT message, WPARAM wParam, 
 			{
 				if (wParam == 0x41)
 				{
-					shot = true;
+					g_MainCharacter->m_IsShooting = true;
+					g_Shot = true;
 				}
 				if (wParam == VK_UP || wParam == VK_DOWN || wParam == VK_LEFT || wParam == VK_RIGHT)
-					mainCharacter->isMoving = false;
+					g_MainCharacter->m_IsMoving = false;
 			}
 			result = 0;
 			wasHandled = true;

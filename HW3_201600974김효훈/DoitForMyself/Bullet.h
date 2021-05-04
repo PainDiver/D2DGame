@@ -4,15 +4,16 @@
 class Bullet
 {
 public:
-	float anim_time = 0.0f;
-	bool isFlying = false;
-	float FirstX;
-	float FirstY;
+	float m_AnimTime;
+	bool m_IsFlying;
+	float m_FirstX;
+	float m_FirstY;
+	bool m_IsLeft;
 
-	D2D1_POINT_2F currentXY;
-	D2D1::Matrix3x2F flip;
-	D2D1::Matrix3x2F direction;
-	bool isLeft;
+	D2D1_POINT_2F m_CurrentXY;
+	D2D1::Matrix3x2F m_Flip;
+	D2D1::Matrix3x2F m_Direction;
+	
 	Bullet();
 	~Bullet();
 };
