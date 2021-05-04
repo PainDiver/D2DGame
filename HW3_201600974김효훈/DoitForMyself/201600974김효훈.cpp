@@ -610,24 +610,23 @@ HRESULT ThirdHomework::OnRender()
 
 		D2D1::Matrix3x2F scale = D2D1::Matrix3x2F::Scale(WidthScale, HeightScale);
 		D2D1::Matrix3x2F scale2 = D2D1::Matrix3x2F::Scale(2.f, 5.f);
-		D2D1::Matrix3x2F translation = D2D1::Matrix3x2F::Translation(0, rtSize.height / 4.f);
 		
 		// 그리기를 준비함.
 		m_pRT->BeginDraw();
 		// 렌더타겟을 클리어함.
 
-		m_pRT->Clear(D2D1::ColorF(D2D1::ColorF::DimGray));
+		m_pRT->Clear(D2D1::ColorF(D2D1::ColorF::White));
 		m_pRT->SetTransform(D2D1::Matrix3x2F::Identity());
 
 		m_pRT->SetTransform(scale);
 
 		for (int i = 0; i < 3; i++)
 			for (int j = 0; j < 20; j++)
-				m_pRT->DrawBitmap(m_pStreetBitmap, D2D1::RectF(100 * j, 1000.f - 150.f * i, 105.f + 100 * j, 1200.f - 100 * i));
+				m_pRT->DrawBitmap(m_pStreetBitmap, D2D1::RectF(100.f * j, 1000.f - 150.f * i, 105.f + 100 * j, 1200.f - 100 * i));
 
 
 		D2D1_ELLIPSE light = D2D1::Ellipse(D2D1::Point2F(0, 0), 200.f, 200.f);
-		for (int i = 0; i < 5; i++)
+		for (int i = 0; i < 4; i++)
 		{
 			m_pRT->SetTransform(D2D1::Matrix3x2F::Translation(100 + 600.f * i , lampostSize.height * 7.f) *scale);
 			m_pRT->FillEllipse(&light, m_pGradientYellowBrush);
@@ -640,7 +639,7 @@ HRESULT ThirdHomework::OnRender()
 		
 		m_pRT->SetTransform(D2D1::Matrix3x2F::Translation(0, FireSize.height / 2.f) * scale2 * scale);
 		D2D1_RECT_F rcBrushRect = D2D1::RectF(0, 0, FireSize.width, FireSize.height);
-		for (int i = 1; i < 7; i++)
+		for (int i = 1; i < 5; i++)
 		{
 			m_pRT->SetAntialiasMode(D2D1_ANTIALIAS_MODE_ALIASED);
 			m_pRT->FillOpacityMask(m_pFireBitMask, m_pFireBitmapBrush, D2D1_OPACITY_MASK_CONTENT_GRAPHICS, &rcBrushRect);
@@ -649,11 +648,9 @@ HRESULT ThirdHomework::OnRender()
 		}
 
 
-
-
-		m_pRT->SetTransform((D2D1::Matrix3x2F::Translation(0, FireSize.height / 1.7f) * scale2 * scale));
+		m_pRT->SetTransform((D2D1::Matrix3x2F::Translation(0, buildingSize.height / 1.3f) * scale2 * scale));
 		rcBrushRect = D2D1::RectF(0, 0, buildingSize.width, buildingSize.height);
-		for (int i = 1; i < 15; i++)
+		for (int i = 1; i < 11; i++)
 		{
 			m_pRT->SetAntialiasMode(D2D1_ANTIALIAS_MODE_ALIASED);
 			m_pRT->FillOpacityMask(m_pBuildingBitMask, m_pBuildingBitmapBrush, D2D1_OPACITY_MASK_CONTENT_GRAPHICS, &rcBrushRect);
@@ -662,21 +659,11 @@ HRESULT ThirdHomework::OnRender()
 		}
 
 
-
-
 		m_pRT->SetTransform(scale);
 		for (int i = 0; i < 15; i++)
 			m_pRT->DrawBitmap(m_pWallBitmap, D2D1::RectF(wallSize.width * 1.5f * i, wallSize.height*8.f, wallSize.width * 1.5f * i + wallSize.width * 1.5f, wallSize.height * 11.f));
 
-
-
-
-
-		m_pRT->SetTransform(scale);
 		m_pRT->FillGeometry(m_pMoon, m_pYellowBrush, NULL);
-
-
-
 
 
 		m_pRT->SetTransform(D2D1::Matrix3x2F::Translation(0, lampostSize.height/1.5f) * scale2 *scale );
@@ -688,11 +675,11 @@ HRESULT ThirdHomework::OnRender()
 			m_pRT->SetAntialiasMode(D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
 			rcBrushRect = D2D1::RectF(lampostSize.width * i * 3.f, 0, lampostSize.width * i * 3.f + lampostSize.width, lampostSize.height);
 		}
-		m_pRT->SetAntialiasMode(D2D1_ANTIALIAS_MODE_ALIASED);
+	
 
 		D2D1_MATRIX_3X2_F flip = D2D1::Matrix3x2F(-1.f, 0.f, 0.f, 1.f, 1.f, 1.f);		//이미지 반전을 위해 반전행렬을 만든다.
 		D2D1_MATRIX_3X2_F restore = D2D1::Matrix3x2F::Translation(characterSize.width,0);	//반전행렬을 곱하면 x값이 반전되므로, 다시 이를 복원시켜줄 복원행렬을 만들어줌	
-		D2D1_MATRIX_3X2_F adjustLocation = D2D1::Matrix3x2F::Translation((g_MainCharacter->GetLocation().left), g_MainCharacter->GetLocation().top);
+		D2D1_MATRIX_3X2_F adjustLocation = D2D1::Matrix3x2F::Translation((g_MainCharacter->GetLocation().left+g_MainCharacter->GetLocation().right)/2 ,(g_MainCharacter->GetLocation().top + g_MainCharacter->GetLocation().bottom)/ 2);
 		
 		D2D1_ELLIPSE shadow = D2D1::Ellipse(D2D1::Point2F(0, 0), 50.f, 15.f);
 
@@ -718,6 +705,7 @@ HRESULT ThirdHomework::OnRender()
 		
 		g_MainCharacter->m_preAnimPose = g_MainCharacter->m_AnimPose;
 
+		m_pRT->SetAntialiasMode(D2D1_ANTIALIAS_MODE_ALIASED);
 		if (g_MainCharacter->m_LookLeft)
 		{
 			if (g_MainCharacter->m_AnimPose == idle)
@@ -791,7 +779,8 @@ HRESULT ThirdHomework::OnRender()
 				m_pRT->FillOpacityMask(m_pCharacter7BitMask, m_pCharacter7BitmapBrush, D2D1_OPACITY_MASK_CONTENT_GRAPHICS);
 			}
 		}
-		
+		m_pRT->SetAntialiasMode(D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
+
 		g_MainCharacter->m_AnimTime[g_MainCharacter->m_AnimPose] += elapsedTime*15.f;	
 		if (g_MainCharacter->m_AnimTime[g_MainCharacter->m_AnimPose] > 2.f && g_MainCharacter->m_AnimPose !=idle)
 		{
@@ -809,7 +798,6 @@ HRESULT ThirdHomework::OnRender()
 
 			g_MainCharacter->m_IsShooting = false;
 		}
-		m_pRT->SetAntialiasMode(D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
 
 
 
@@ -831,18 +819,18 @@ HRESULT ThirdHomework::OnRender()
 				length = m_Animation.GetValue(g_BulletVector[i].m_AnimTime);
 				if (g_BulletVector[i].m_AnimTime == 0.f)
 				{
-					g_BulletVector[i].m_FirstY = g_MainCharacter->GetLocation().bottom - 50.f;
+					g_BulletVector[i].m_FirstY = (g_MainCharacter->GetLocation().bottom + g_MainCharacter->GetLocation().top )/2+45.f;
 					g_BulletVector[i].m_CurrentXY.y = g_BulletVector[i].m_FirstY;
 					if (g_MainCharacter->m_LookLeft)
 					{
 						g_BulletVector[i].m_Flip = D2D1::Matrix3x2F(-1.f, 0.f, 0.f, 1.f, 1.f, 1.f);
-						g_BulletVector[i].m_FirstX = g_MainCharacter->GetLocation().left;
+						g_BulletVector[i].m_FirstX = g_MainCharacter->GetLocation().left+15.f;
 						g_BulletVector[i].m_CurrentXY.x = g_MainCharacter->GetLocation().left;
 						g_BulletVector[i].m_IsLeft = true;
 					}
 					else
 					{
-						g_BulletVector[i].m_FirstX = g_MainCharacter->GetLocation().right;
+						g_BulletVector[i].m_FirstX = g_MainCharacter->GetLocation().right+80.f;
 						g_BulletVector[i].m_CurrentXY.x = g_MainCharacter->GetLocation().right;
 						g_BulletVector[i].m_Flip = D2D1::Matrix3x2F::Identity();	
 						g_BulletVector[i].m_IsLeft = false;
@@ -850,16 +838,16 @@ HRESULT ThirdHomework::OnRender()
 				}
 				if (g_BulletVector[i].m_IsLeft)
 				{
-					g_BulletVector[i].m_Direction = D2D1::Matrix3x2F::Translation(-length-50.f,-25.f);
+					g_BulletVector[i].m_Direction = D2D1::Matrix3x2F::Translation(-length,0.f);
 					g_BulletVector[i].m_CurrentXY.x = g_BulletVector[i].m_FirstX -length;
-
 				}
 				else
 				{
-					g_BulletVector[i].m_Direction = D2D1::Matrix3x2F::Translation(length+50.f,-25.f);
+					g_BulletVector[i].m_Direction = D2D1::Matrix3x2F::Translation(length, 0.f);
 					g_BulletVector[i].m_CurrentXY.x = g_BulletVector[i].m_FirstX + length;
 				}
 				FirstLoc = D2D1::Matrix3x2F::Translation(g_BulletVector[i].m_FirstX, g_BulletVector[i].m_FirstY);
+				
 				m_pRT->SetTransform(g_BulletVector[i].m_Flip * FirstLoc * g_BulletVector[i].m_Direction* scale);
 				m_pRT->FillGeometry(m_pBulletPathgeometry, m_pGradientYellowBrush);
 				

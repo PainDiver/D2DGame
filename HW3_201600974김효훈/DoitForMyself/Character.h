@@ -37,7 +37,6 @@ public:
 	bool GetAlive();
 	void SetAlive(bool alive);
 	void SetFirst(float l,float t,float r,float b);
-	
 	void Move(bool isVertical, float mover);
 	D2D1_RECT_F GetLocation();
 

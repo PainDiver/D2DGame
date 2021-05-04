@@ -74,11 +74,8 @@ private:
 	ID2D1Bitmap* m_pFireBitMask;
 	ID2D1BitmapBrush* m_pFireBitmapBrush;
 
-	
-	
 	ID2D1EllipseGeometry* m_pCircle1;
 	ID2D1EllipseGeometry* m_pCircle2;
-
 
 	AnimationLinear<float> m_Animation;
 
