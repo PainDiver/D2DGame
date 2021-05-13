@@ -1,0 +1,6 @@
+﻿cl : command line warning D9035: option 'Gm' has been deprecated and will be removed in a future release
+  SoundManager.cpp
+  DirectSoundPlayWav.cpp
+  d2dHelper.cpp
+  Generating Code...
+  DirectSoundPlayWav.vcxproj -> C:\Users\hyo29\Desktop\GitCollections\D2DGame\D2DGame\사운드\01.DirectSoundPlayWav\Debug\DirectSoundPlayWav.exe

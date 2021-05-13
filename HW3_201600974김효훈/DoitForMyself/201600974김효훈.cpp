@@ -184,7 +184,12 @@ HRESULT ThirdHomework::Initialize()
 			ShowWindow(m_hwnd, SW_SHOWNORMAL);
 			UpdateWindow(m_hwnd);
 		}
-		
+		if (SUCCEEDED(hr))
+		{
+			D2D1_SIZE_F characterSize = m_pCharacterBitmap->GetSize();
+			D2D1_SIZE_F rtSize = m_pRT->GetSize();
+			g_MainCharacter->SetFirst((rtSize.width / 2.f) - (characterSize.width / 2), rtSize.height / 1.45f - (characterSize.height / 2), (rtSize.width / 2.f) + (characterSize.width / 2), rtSize.height / 1.45f + (characterSize.height / 2));
+		}
 	}
 
 	return hr;
@@ -523,9 +528,6 @@ void ThirdHomework::RunMessageLoop()
 	bool bdone = false;
 
 
-	D2D1_SIZE_F characterSize = m_pCharacterBitmap->GetSize();
-	D2D1_SIZE_F rtSize = m_pRT->GetSize();
-	g_MainCharacter->SetFirst((rtSize.width / 2.f) - (characterSize.width/2) , rtSize.height / 1.45f- (characterSize.height / 2), (rtSize.width / 2.f) + (characterSize.width/2), rtSize.height / 1.45f + (characterSize.height/2));
 
 	while (!bdone)
 	{
@@ -558,7 +560,7 @@ HRESULT ThirdHomework::OnRender()
 
 		if (g_MainCharacter->m_IsMoving == false && g_MainCharacter->m_AnimTime[g_MainCharacter->m_AnimPose] == 0.f)
 		{
-			for (int i = 0; i < 6; i++)
+			for (int i = 0; i < 7; i++)
 			{
 				g_MainCharacter->m_AnimTime[i] = 0.f;
 			}
@@ -585,7 +587,7 @@ HRESULT ThirdHomework::OnRender()
 		}
 		if (GetAsyncKeyState(VK_UP) < 0)
 		{
-			if ((g_MainCharacter->GetLocation().bottom>= (DEFAULTHEIGHT/1.45f)))
+			if ((g_MainCharacter->GetLocation().bottom>= (DEFAULTHEIGHT/1.6f)))
 				g_MainCharacter->Move(true, -4.f);
 			if (g_MainCharacter->m_IsMoving == false)
 				g_MainCharacter->m_AnimPose = step;
@@ -593,7 +595,7 @@ HRESULT ThirdHomework::OnRender()
 		}
 		if (GetAsyncKeyState(VK_DOWN) < 0)
 		{
-			if ((g_MainCharacter->GetLocation().bottom <= (DEFAULTHEIGHT)))
+			if ((g_MainCharacter->GetLocation().bottom <= (DEFAULTHEIGHT)/1.1f))
 				g_MainCharacter->Move(true, 4.f);
 			if (g_MainCharacter->m_IsMoving == false)
 				g_MainCharacter->m_AnimPose = step;
@@ -689,8 +691,6 @@ HRESULT ThirdHomework::OnRender()
 		m_pRT->SetTransform(adjustLocation* scale);
 		
 		
-
-
 		LARGE_INTEGER CurrentTime;
 		QueryPerformanceCounter(&CurrentTime);
 		float elapsedTime = (float)((double)(CurrentTime.QuadPart - m_nPrevTime.QuadPart) / (double)(m_nFrequency.QuadPart));

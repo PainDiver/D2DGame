@@ -1,0 +1,6 @@
+﻿cl : command line warning D9035: option 'Gm' has been deprecated and will be removed in a future release
+  MouseSimple.cpp
+  InputMouse.cpp
+  d2dHelper.cpp
+  Generating Code...
+  MouseSimple.vcxproj -> C:\Users\hyo29\Desktop\03.DirectInputMouseSimple\Debug\MouseSimple.exe
