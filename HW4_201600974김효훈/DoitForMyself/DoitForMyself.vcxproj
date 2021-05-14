@@ -142,6 +142,9 @@
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Bullet.h" />
     <ClInclude Include="Character.h" />
+    <ClInclude Include="FiniteStateMachine.h" />
+    <ClInclude Include="Monster.h" />
+    <ClInclude Include="Playable.h" />
     <ClInclude Include="SoundManager.h" />
     <ClInclude Include="ThirdHomework.h" />
     <ClInclude Include="Resource.h" />
@@ -151,6 +154,9 @@
     <ClCompile Include="201600974김효훈.cpp" />
     <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="Character.cpp" />
+    <ClCompile Include="FiniteStateMachine.cpp" />
+    <ClCompile Include="Monster.cpp" />
+    <ClCompile Include="Playable.cpp" />
     <ClCompile Include="SoundManager.cpp" />
   </ItemGroup>
   <ItemGroup>

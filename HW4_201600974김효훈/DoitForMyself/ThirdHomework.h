@@ -13,8 +13,13 @@
 #include <d2d1helper.h>
 #include <dwrite.h>
 #include <wincodec.h>
-
+#include "Monster.h"
 #include "Animation.h"
+
+#pragma comment(lib, "d2d1")
+#pragma comment(lib, "dwrite")
+#pragma comment(lib, "dxguid") 
+#pragma comment(lib, "winmm")
 
 // 자원 안전 반환 매크로.
 #define SAFE_RELEASE(p) { if(p) { (p)->Release(); (p)=NULL; } }
@@ -42,7 +47,7 @@ private:
 	void OnResize(UINT width, UINT height);
 	static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	HRESULT LoadBitmapFromFile(ID2D1RenderTarget* pRenderTarget, IWICImagingFactory* pIWICFactory, PCWSTR uri, UINT destinationWidth, UINT destinationHeight, ID2D1Bitmap** ppBitmap);
-
+	
 
 private:
 	HWND m_hwnd;
@@ -60,7 +65,7 @@ private:
 	ID2D1SolidColorBrush* m_pYellowBrush;
 	ID2D1SolidColorBrush* m_pBlackBrush;
 	ID2D1SolidColorBrush* m_pGrayBrush;
-
+	ID2D1SolidColorBrush* m_pBulletBrush;
 
 	ID2D1Bitmap* m_pTitleBitmap;
 
@@ -88,6 +93,7 @@ private:
 	AnimationLinear<float> m_Animation;
 
 	LARGE_INTEGER m_nPrevTime;
+	LARGE_INTEGER m_nPrevTime2;
 	LARGE_INTEGER m_nFrequency;
 
 
@@ -118,5 +124,18 @@ private:
 	ID2D1Bitmap* m_pCharacter7Bitmap;
 	ID2D1Bitmap* m_pCharacter7BitMask;
 	ID2D1BitmapBrush* m_pCharacter7BitmapBrush;
+
+	ID2D1Bitmap* m_pMonster1Bitmap;
+	ID2D1Bitmap* m_pMonster1BitMask;
+	ID2D1BitmapBrush* m_pMonster1BitmapBrush;
+
+	ID2D1Bitmap* m_pMonster2Bitmap;
+	ID2D1Bitmap* m_pMonster2BitMask;
+	ID2D1BitmapBrush* m_pMonster2BitmapBrush;
+
+	ID2D1Bitmap* m_pMonster3Bitmap;
+	ID2D1Bitmap* m_pMonster3BitMask;
+	ID2D1BitmapBrush* m_pMonster3BitmapBrush;
+
 };
 

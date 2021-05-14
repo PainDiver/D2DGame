@@ -99,7 +99,7 @@ bool CSoundManager::add(LPWSTR filename, int* id)
 
 
 // Play a sound, Requires id passed in, If loop is TRUE the sound will loop until stopped
-bool CSoundManager::play(int id, bool bLooped,float volume)
+bool CSoundManager::play(int id, bool bLooped)
 {
 	if (id < 0 || id >= (int)m_soundVector.size())
 		return false;
@@ -107,7 +107,7 @@ bool CSoundManager::play(int id, bool bLooped,float volume)
 	// Play the buffer since it is currently paused
 	DWORD dwFlags = bLooped ? DSBPLAY_LOOPING : 0L;
 
-	HRESULT hr = m_soundVector[id]->Play(0, dwFlags,volume);
+	HRESULT hr = m_soundVector[id]->Play(0, dwFlags);
 
 	return FAILED(hr);
 }

@@ -1,7 +1,7 @@
 #pragma once
 #include <d2d1helper.h>
-
-enum state
+#include "Playable.h"
+enum class state
 {
 	idle = 0,
 	step = 1,
@@ -12,35 +12,19 @@ enum state
 	runningShoot3 = 6
 };
 
-class Character
+class Character: public Playable
 {
 private:
-	D2D1_RECT_F m_Location;
-	short m_HP;
-	bool m_IsAlive;
 	int m_EXP;
+	int m_Level;
 public:
-	short m_AnimPose;
-	short m_preAnimPose;
-	float m_AnimTime[7] = {0};
-	
-	
-	bool m_IsMoving;
-	bool m_LookLeft;
-	bool m_IsShooting;
-	
 
 	Character();
 	~Character();
-	
-	void CheckHP(short damage);
-	int GetEXP();
-	void setEXP(int point);
-	bool GetAlive();
-	void SetAlive(bool alive);
-	void SetFirst(float l,float t,float r,float b);
-	void Move(bool isVertical, float mover);
-	D2D1_RECT_F GetLocation();
 
+	int GetEXP();
+	void SetEXP(int point);
+	int GetLevel();
+	
 };
 

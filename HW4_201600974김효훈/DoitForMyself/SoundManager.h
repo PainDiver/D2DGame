@@ -29,6 +29,18 @@ class CStreamingSound;
 class CWaveFile;
 
 
+enum class track
+{
+	start = 0,
+	bgm1 = 1,
+	bgm2 = 2,
+	bgm3 = 3,
+	bgm4 = 4,
+	bgm5 = 5,
+	gunShot = 6,
+	monsterAttack = 7
+};
+
 //-----------------------------------------------------------------------------
 // Typing macros 
 //-----------------------------------------------------------------------------
@@ -55,7 +67,7 @@ public:
 	bool init(HWND hWnd);
 	void release();
 	void stop(int id);
-	bool play(int id, bool bLooped,float volume);
+	bool play(int id, bool bLooped);
 	bool add(LPWSTR filename, int* id);
 
 	HRESULT Initialize(HWND hWnd, DWORD dwCoopLevel);
