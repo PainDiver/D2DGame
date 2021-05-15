@@ -4,181 +4,238 @@
 Monster::Monster(Type _type, DWORD stateTransitions[][3], int numTransitions)//, MeshMD2* _model)
 {
 	//model = _model; //copy
-	type = _type;
+	m_type = _type;
 
 	// 유한상태기계를 만든다.
-	stateMachine = new FiniteStateMachine();
+	m_stateMachine = new FiniteStateMachine();
 	for (int i = 0; i < numTransitions; i++)
 	{
-		stateMachine->addStateTransition(stateTransitions[i][0], stateTransitions[i][1], stateTransitions[i][2]);
+		m_stateMachine->addStateTransition(stateTransitions[i][0], stateTransitions[i][1], stateTransitions[i][2]);
 	}
-	stateMachine->setCurrentStateID(STATE_STAND);
+	m_stateMachine->setCurrentStateID(STATE_STAND);
 
 	// 캐릭터 특성을 결정한다.
-	if (type == TYPE_AI)
+	if (m_type == TYPE_AI)
 	{
-		rangeView = 2000;//(float)(30 + rand() % 10);
-		speed = (float)(90 + rand() % 3);
+		m_rangeView = 2000;//(float)(30 + rand() % 10);
+		m_speed = (float)(105 + rand() % 3);
+		m_originalSpeed = m_speed;
+		m_rageSpeed = 0.05*m_speed;
 	}
 
-	rangeTouch = 3;
+	m_rangeTouch = 30;
 
-	this->initializedPos();
-	orientation = 0.0f;
-	setDestPosition(position);
+	this->InitializedPos();
+	m_orientation = 0.0f;
+	SetDestPosition(m_position);
 }
 
 Monster::~Monster()
 {
-	if (stateMachine != 0)
-		delete stateMachine;
+	if (m_stateMachine != 0)
+		delete m_stateMachine;
 }
 
-bool Monster::isVisible(D2D1_POINT_2F pos)
+bool Monster::IsVisible(D2D1_POINT_2F pos)
 {
 	//pos을 볼 수 있는지를 검사함.
-	if (GetLengthBetween(position, pos) < rangeView)
+	if (GetLengthBetween(m_position, pos) < m_rangeView)
 		return true;
 	else
 		return false;
 }
 
-void Monster::update(std::shared_ptr<Playable> ch, float timeDelta,CSoundManager* g_soundManager)
+void Monster::Update(std::shared_ptr<Playable> ch, float timeDelta,CSoundManager* g_soundManager)
 {
-		updateAI(ch, timeDelta,g_soundManager);
+		UpdateAI(ch, timeDelta,g_soundManager);
 }
 
-void Monster::updateAI(std::shared_ptr<Playable> ch, float timeDelta,CSoundManager* g_soundManager)
+void Monster::UpdateAI(std::shared_ptr<Playable> ch, float timeDelta,CSoundManager* g_soundManager)
 {
 	D2D1_POINT_2F pt = { (ch->GetLocation().left + ch->GetLocation().right) / 2,(ch->GetLocation().bottom + ch->GetLocation().top) / 2 };
 
-	if (pt.x - this->getPosition().x > 0)
+	if (pt.x - this->GetPosition().x > 0)
 		this->m_LookLeft = false;
 	else
 		this->m_LookLeft = true;
 
-	switch (stateMachine->getCurrentStateID())
+	switch (m_stateMachine->getCurrentStateID())
 	{
 	case STATE_STAND:
-		actionStand(timeDelta);
+		ActionStand(timeDelta);
 
-		if (isVisible(pt))
+		if (IsVisible(pt))
 		{ // 대상물체가 보임.
-			setDestPosition(pt); // 대상물체를 목표지점으로 지정함.
-			issueEvent(Monster::EVENT_FINDTARGET);
+			SetDestPosition(pt); // 대상물체를 목표지점으로 지정함.
+			IssueEvent(Monster::EVENT_FINDTARGET);
 			break;
 		}
 
 		break;
 
 	case STATE_MOVE:
-		actionMove(timeDelta);
+		ActionMove(timeDelta);
 
-		if (isVisible(pt))
+		if (IsVisible(pt))
 		{ // 대상물체가 보임.
-			setDestPosition(pt); // 대상물체를 목표지점으로 지정함.
-			issueEvent(Monster::EVENT_FINDTARGET);
+			SetDestPosition(pt); // 대상물체를 목표지점으로 지정함.
+			IssueEvent(Monster::EVENT_FINDTARGET);
 			break;
 		}
 
 		break;
 
 	case STATE_FOLLOW:
-		setDestPosition(pt); // 대상물체의 위치를 갱신함.
-		actionFollow(timeDelta);
+		SetDestPosition(pt); // 대상물체의 위치를 갱신함.
+		ActionFollow(timeDelta);
 
-		if (GetLengthBetween(position, destPosition) < 30.0f)
+		if (GetLengthBetween(m_position, m_destPosition) < m_rangeTouch)
 		{ //사정권내에 있음.
-			issueEvent(Monster::EVENT_WITHINATTACK);
+			IssueEvent(Monster::EVENT_WITHINATTACK);
+			break;
+		}
+
+		if (this->m_gothit)
+		{
+			IssueEvent(Monster::EVENT_GOTHIT);
+			this->m_gothit = false;
 			break;
 		}
 
 		break;
 
 	case STATE_ATTACK:
-		setDestPosition(pt); // 대상물체의 위치를 갱신함.
+		SetDestPosition(pt); // 대상물체의 위치를 갱신함.
 		g_soundManager->play((int)track::monsterAttack,false);
-		actionAttack(timeDelta,ch);
+		ActionAttack(timeDelta,ch);
 
-		if (GetLengthBetween(position, destPosition) >= 30.0f) { //사정권을 벗어났음.
-			issueEvent(Monster::EVENT_OUTOFATTACK);
+		if (GetLengthBetween(m_position, m_destPosition) >= m_rangeTouch) { //사정권을 벗어났음.
+			IssueEvent(Monster::EVENT_OUTOFATTACK);
 			break;
 		}
 
 		break;
 
-	case STATE_RUNAWAY:
-		actionRunaway(timeDelta);
+	case STATE_RAGE:
+		ActionRage(timeDelta);
+		g_soundManager->play((int)track::ZombieRage, false);
+		if (IsVisible(pt))
+		{ // 대상물체가 보임.
+			SetDestPosition(pt); // 대상물체를 목표지점으로 지정함.
+			IssueEvent(Monster::EVENT_FINDTARGET);
+			break;
+		}
 		break;
 	}
 
-	if (this->attackDelay < 0)
+	if (this->m_attackDelay < 0)
 	{
-		this->attackDelay = 2;
-		this->delayLock = false;
+		this->m_attackDelay = 2;
+		this->m_delayLock = false;
 	}
-	if(this->delayLock==true)
-		this->attackDelay -= timeDelta;
+	if(this->m_delayLock==true)
+		this->m_attackDelay -= timeDelta;
+
+
+	if (this->m_pushingTime < 0.1f && m_isPushing == true)
+	{
+		if (ch->GetLocation().left > 0 && ch->GetLocation().right < DEFAULTWIDTH)
+			ch->Move(false, (this->m_LookLeft ? -1 : 1) * Decelerate(30, m_pushingTime));
+		m_pushingTime += timeDelta;
+	}
+	else if (m_isPushing == true)
+	{
+		this->m_isPushing = false;
+		this->m_pushingTime = 0.1f;
+	}
 }
 
-void Monster::actionStand(float timeDelta) { }
-void Monster::actionMove(float timeDelta) { moveTo(timeDelta); }
-void Monster::actionFollow(float timeDelta) { moveTo(timeDelta); }
+float Monster::Decelerate(float force, float dt)
+{	// 몇초만에, distance를 가는지
 
-void Monster::actionAttack(float timeDelta, std::shared_ptr<Playable> ch) 
+	float newforce = (force / 10) * pow(1 / dt, 5);
+	if (newforce > force)
+		return newforce = force / 10;
+	return newforce / 10;
+}
+
+
+
+void Monster::ActionStand(float timeDelta) { }
+void Monster::ActionMove(float timeDelta) { MoveTo(timeDelta); }
+void Monster::ActionFollow(float timeDelta) { MoveTo(timeDelta); }
+
+void Monster::ActionAttack(float timeDelta, std::shared_ptr<Playable> ch) 
 {
-	if ((int)this->attackDelay == 2 && this->delayLock==false)
+	if ((int)this->m_attackDelay == 2 && this->m_delayLock==false)
 	{
-		this->delayLock = true;
+		this->m_delayLock = true;
 		ch->CheckHP(this->m_Damage);
-
-		if (ch->GetAlive() == false)
-		{
-			//죽는소리 추가
-		}
 	}
+	this->m_pushingTime = 0;
+	this->m_isPushing = true;
+	
 }
 
-void Monster::actionRunaway(float timeDelta) { }
-
-
-void Monster::issueEvent(DWORD event)
+void Monster::ActionRage(float timeDelta) 
 {
-	stateMachine->issueEvent(event);
+	this->m_speed += m_rageSpeed;
 }
 
-void Monster::moveTo(float timeDelta)
+
+void Monster::IssueEvent(DWORD event)
+{
+	m_stateMachine->IssueEvent(event);
+
+	switch (m_stateMachine->getCurrentStateID())
+	{
+	case STATE_STAND:
+		lstrcpyW(this->m_state, L"Stand");
+		break;
+	case STATE_MOVE:
+		lstrcpyW(this->m_state, L"Move");
+		break;
+	case STATE_ATTACK:
+		lstrcpyW(this->m_state, L"Attack");
+		break;
+	case STATE_FOLLOW:
+		lstrcpyW(this->m_state, L"Follow");
+		break;
+	case STATE_RAGE:
+		lstrcpyW(this->m_state, L"RAGE");
+		break;
+	}
+
+}
+
+void Monster::MoveTo(float timeDelta)
 {
 	D2DVECTOR toTarget;
 	float SpeedX, SpeedY;
 
-	toTarget.x = destPosition.x - position.x;
-	toTarget.y = destPosition.y - position.y;
-	SpeedX = speed * toTarget.x / (float)GetLengthBetween(destPosition, position);
-	SpeedY = speed * toTarget.y / (float)GetLengthBetween(destPosition, position);
+	toTarget.x = m_destPosition.x - m_position.x;
+	toTarget.y = m_destPosition.y - m_position.y;
+	SpeedX = m_speed * toTarget.x / (float)GetLengthBetween(m_destPosition, m_position);
+	SpeedY = m_speed * toTarget.y / (float)GetLengthBetween(m_destPosition, m_position);
 
 	//D3DXVec3Normalize(&toTarget, &toTarget);
 	/*position.x += toTarget.x * timeDelta * speed;
 	position.y += toTarget.y * timeDelta * speed;*/
 
-	position.x += timeDelta * SpeedX;
-	position.y += timeDelta * SpeedY;
+	m_position.x += timeDelta * SpeedX;
+	m_position.y += timeDelta * SpeedY;
 
-	this->SetLocation(position.x-50,position.y-50,position.x+50,position.y+50);
+	this->SetLocation(m_position.x-50,m_position.y-50,m_position.x+50,m_position.y+50);
 
-	if (GetLengthBetween(destPosition, position) < 1)
-	{
-		issueEvent(Monster::EVENT_STOPWALK);
-	}
 }
 
-void Monster::setDestPosition(D2D1_POINT_2F dest)
+void Monster::SetDestPosition(D2D1_POINT_2F dest)
 {
-	destPosition = dest;
+	m_destPosition = dest;
 	D2DVECTOR toTarget;
-	toTarget.x = destPosition.x - position.x;
-	toTarget.y = destPosition.y - position.y;
-	if (GetLengthBetween(destPosition, position) < 30)
+	toTarget.x = m_destPosition.x - m_position.x;
+	toTarget.y = m_destPosition.y - m_position.y;
+	if (GetLengthBetween(m_destPosition, m_position) < 30)
 	{
 		return;
 	}
@@ -188,7 +245,7 @@ void Monster::setDestPosition(D2D1_POINT_2F dest)
 	}
 	else
 	{
-		orientation = atan2(toTarget.x, toTarget.y);
+		m_orientation = atan2(toTarget.x, toTarget.y);
 	}
 }
 
@@ -196,3 +253,4 @@ double GetLengthBetween(D2D1_POINT_2F p1, D2D1_POINT_2F p2)
 {
 	return sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y));
 }
+

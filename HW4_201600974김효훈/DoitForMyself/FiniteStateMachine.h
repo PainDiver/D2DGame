@@ -39,7 +39,7 @@ public:
 	void addStateTransition(DWORD stateID, DWORD inputEvent, DWORD outputStateID);
 	void deleteTransition(DWORD stateID, DWORD inputEvent);
 
-	void issueEvent(int inputEvent);
+	void IssueEvent(int inputEvent);
 	DWORD getCurrentStateID() { return currentStateID; }
 	void setCurrentStateID(DWORD stateID);
 

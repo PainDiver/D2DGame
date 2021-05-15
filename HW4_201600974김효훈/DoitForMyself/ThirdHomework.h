@@ -31,11 +31,11 @@ EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 #define HINST_THISCOMPONENT ((HINSTANCE)&__ImageBase)
 #endif
 
-class ThirdHomework
+class ForthHomework
 {
 public:
-	ThirdHomework();
-	~ThirdHomework();
+	ForthHomework();
+	~ForthHomework();
 	HRESULT Initialize();
 	void RunMessageLoop();
 

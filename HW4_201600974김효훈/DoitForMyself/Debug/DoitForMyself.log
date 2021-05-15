@@ -1,5 +1,8 @@
 ﻿  201600974김효훈.cpp
-C:\Users\hyo29\Desktop\GitCollections\D2DGame\D2DGame\HW4_201600974김효훈\DoitForMyself\Monster.h(92,17): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-C:\Users\hyo29\Desktop\GitCollections\D2DGame\D2DGame\HW4_201600974김효훈\DoitForMyself\Monster.h(95,41): warning C4244: 'argument': conversion from 'int' to 'FLOAT', possible loss of data
-C:\Users\hyo29\Desktop\GitCollections\D2DGame\D2DGame\HW4_201600974김효훈\DoitForMyself\201600974김효훈.cpp(742,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\hyo29\Desktop\GitCollections\D2DGame\D2DGame\HW4_201600974김효훈\DoitForMyself\Monster.h(83,17): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+C:\Users\hyo29\Desktop\GitCollections\D2DGame\D2DGame\HW4_201600974김효훈\DoitForMyself\Monster.h(86,43): warning C4244: 'argument': conversion from 'int' to 'FLOAT', possible loss of data
+C:\Users\hyo29\Desktop\GitCollections\D2DGame\D2DGame\HW4_201600974김효훈\DoitForMyself\201600974김효훈.cpp(12,1): warning C4005: 'DEFAULTWIDTH': macro redefinition
+C:\Users\hyo29\Desktop\GitCollections\D2DGame\D2DGame\HW4_201600974김효훈\DoitForMyself\Monster.h(7): message : see previous definition of 'DEFAULTWIDTH'
+C:\Users\hyo29\Desktop\GitCollections\D2DGame\D2DGame\HW4_201600974김효훈\DoitForMyself\201600974김효훈.cpp(771,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\hyo29\Desktop\GitCollections\D2DGame\D2DGame\HW4_201600974김효훈\DoitForMyself\201600974김효훈.cpp(1163,21): warning C4018: '<': signed/unsigned mismatch
   DoitForMyself.vcxproj -> C:\Users\hyo29\Desktop\GitCollections\D2DGame\D2DGame\HW4_201600974김효훈\Debug\DoitForMyself.exe

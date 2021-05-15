@@ -15,8 +15,6 @@ public:
 	bool m_IsAlive;
 	int m_Damage;
 
-
-
 	Playable();
 	virtual ~Playable();
 	virtual void CheckHP(short damage);
@@ -26,7 +24,5 @@ public:
 	virtual void Move(bool isVertical, float mover);
 	virtual D2D1_RECT_F GetLocation();
 	virtual int GetDamage();
-
-
 };
 

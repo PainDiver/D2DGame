@@ -38,7 +38,12 @@ enum class track
 	bgm4 = 4,
 	bgm5 = 5,
 	gunShot = 6,
-	monsterAttack = 7
+	monsterAttack = 7,
+	GameOver =8,
+	CharacterDead=9,
+	ZombieDead =10,
+	ZombieRage = 11,
+	ZombieHit = 12
 };
 
 //-----------------------------------------------------------------------------

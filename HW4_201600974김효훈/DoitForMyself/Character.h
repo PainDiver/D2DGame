@@ -1,7 +1,7 @@
 #pragma once
 #include <d2d1helper.h>
 #include "Playable.h"
-enum class state
+enum class m_state
 {
 	idle = 0,
 	step = 1,
@@ -23,7 +23,7 @@ public:
 	~Character();
 
 	int GetEXP();
-	void SetEXP(int point);
+	void SetEXP(int g_point);
 	int GetLevel();
 	
 };

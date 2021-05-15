@@ -10,8 +10,8 @@ FiniteStateMachine::~FiniteStateMachine()
 	std::map<DWORD, State*>::iterator iter = states.begin();
 	while (iter != states.end())
 	{
-		State* state = iter->second;
-		if (state != NULL) delete state;
+		State* m_state = iter->second;
+		if (m_state != NULL) delete m_state;
 		iter++;
 	}
 	states.clear();
@@ -35,12 +35,12 @@ void FiniteStateMachine::deleteTransition(DWORD stateID, DWORD inputEvent)
 	std::map<DWORD, State*>::iterator iter = states.find(stateID);
 	if (iter == states.end()) return; //상태가 없음.
 
-	State* state = iter->second;
+	State* m_state = iter->second;
 	// State의 전이 정보를 지운다.
-	state->deleteTransition(inputEvent);
-	if (state->getNumTransitions() == 0)
+	m_state->deleteTransition(inputEvent);
+	if (m_state->getNumTransitions() == 0)
 	{ // 더이상 전이가 없다면 상태를 지운다.
-		delete state;
+		delete m_state;
 		states.erase(iter);
 	}
 }
@@ -53,7 +53,7 @@ void FiniteStateMachine::setCurrentStateID(DWORD stateID)
 	currentStateID = stateID;
 }
 
-void FiniteStateMachine::issueEvent(int inputEvent)
+void FiniteStateMachine::IssueEvent(int inputEvent)
 {
 	// 입력 이벤트에 따라서 상태전이를 수행하여 현재 상태를 바꿈.
 	if (currentStateID == UNDEFINED) return; // 현재 상태가 정의되어 있지 않음.

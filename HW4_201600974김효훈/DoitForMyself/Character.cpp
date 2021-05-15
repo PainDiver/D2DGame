@@ -21,9 +21,9 @@ int Character::GetEXP()
 	return this->m_EXP;
 }
 
-void Character::SetEXP(int point) 
+void Character::SetEXP(int g_point) 
 {
-	this->m_EXP += point;
+	this->m_EXP += g_point;
 	if (this->m_Level == 10)
 	{
 		this->m_EXP = 1000;
