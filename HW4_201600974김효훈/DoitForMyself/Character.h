@@ -1,6 +1,6 @@
 #pragma once
 #include <d2d1helper.h>
-#include "Playable.h"
+#include "Movable.h"
 enum class m_state
 {
 	idle = 0,
@@ -12,7 +12,7 @@ enum class m_state
 	runningShoot3 = 6
 };
 
-class Character: public Playable
+class Character: public Movable
 {
 private:
 	int m_EXP;

@@ -18,7 +18,7 @@ Monster::Monster(Type _type, DWORD stateTransitions[][3], int numTransitions)//,
 	if (m_type == TYPE_AI)
 	{
 		m_rangeView = 2000;//(float)(30 + rand() % 10);
-		m_speed = (float)(105 + rand() % 3);
+		m_speed = (float)(105 + rand() % 15);
 		m_originalSpeed = m_speed;
 		m_rageSpeed = 0.05*m_speed;
 	}
@@ -45,12 +45,12 @@ bool Monster::IsVisible(D2D1_POINT_2F pos)
 		return false;
 }
 
-void Monster::Update(std::shared_ptr<Playable> ch, float timeDelta,CSoundManager* g_soundManager)
+void Monster::Update(std::shared_ptr<Movable> ch, float timeDelta,CSoundManager* g_soundManager)
 {
 		UpdateAI(ch, timeDelta,g_soundManager);
 }
 
-void Monster::UpdateAI(std::shared_ptr<Playable> ch, float timeDelta,CSoundManager* g_soundManager)
+void Monster::UpdateAI(std::shared_ptr<Movable> ch, float timeDelta,CSoundManager* g_soundManager)
 {
 	D2D1_POINT_2F pt = { (ch->GetLocation().left + ch->GetLocation().right) / 2,(ch->GetLocation().bottom + ch->GetLocation().top) / 2 };
 
@@ -137,16 +137,16 @@ void Monster::UpdateAI(std::shared_ptr<Playable> ch, float timeDelta,CSoundManag
 		this->m_attackDelay -= timeDelta;
 
 
-	if (this->m_pushingTime < 0.1f && m_isPushing == true)
+	if (m_pushingTime<=0.1 && m_isPushing == true)
 	{
 		if (ch->GetLocation().left > 0 && ch->GetLocation().right < DEFAULTWIDTH)
 			ch->Move(false, (this->m_LookLeft ? -1 : 1) * Decelerate(30, m_pushingTime));
 		m_pushingTime += timeDelta;
 	}
-	else if (m_isPushing == true)
+	else if (m_isPushing > 0.1)
 	{
 		this->m_isPushing = false;
-		this->m_pushingTime = 0.1f;
+		this->m_pushingTime = 0.f;
 	}
 }
 
@@ -165,7 +165,7 @@ void Monster::ActionStand(float timeDelta) { }
 void Monster::ActionMove(float timeDelta) { MoveTo(timeDelta); }
 void Monster::ActionFollow(float timeDelta) { MoveTo(timeDelta); }
 
-void Monster::ActionAttack(float timeDelta, std::shared_ptr<Playable> ch) 
+void Monster::ActionAttack(float timeDelta, std::shared_ptr<Movable> ch) 
 {
 	if ((int)this->m_attackDelay == 2 && this->m_delayLock==false)
 	{

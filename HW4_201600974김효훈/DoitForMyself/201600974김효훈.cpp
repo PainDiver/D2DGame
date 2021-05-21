@@ -2,7 +2,7 @@
 #include <vector>
 #include <memory>
 #include "Bullet.h"
-#include "ThirdHomework.h"
+#include "ForthHomework.h"
 #include "Character.h"
 #include "SoundManager.h"
 //#include <time.h>
@@ -13,7 +13,7 @@
 #define DEFAULTHEIGHT 1200
 
 #define BULLETATONCE 50
-#define MONSTERATONCE 40
+#define MONSTERATONCE 60
 
 
 std::shared_ptr<Character> g_MainCharacter;
@@ -36,7 +36,7 @@ unsigned int g_point = 0;
 
 void ReleaseFSM();
 bool UpdateFSM(float timeDelta);
-void Spawn(std::vector<Monster*>* mv, int i);
+void Spawn(std::vector<Monster*> mv, int i);
 void HitCheck(std::vector<Bullet*> bv, std::vector<Monster*> mv, ID2D1SolidColorBrush* bulletBrush);
 void Move();
 
@@ -781,23 +781,26 @@ void ForthHomework::RunMessageLoop()
 			}
 			else
 			{
-				float currTime = (float)timeGetTime();
-				float timeDelta = (currTime - lastTime) * 0.001f;
-				int random = rand() % MONSTERATONCE;
-				int percent = rand() % 100000 / g_difficulty;
-				if (percent < 1000)
-					Spawn(&g_MonsterVector, random);
-
-				if (g_MainCharacter->GetAlive() == false)
+				if (g_start)
 				{
-					g_soundManager->play((int)track::CharacterDead, false);
-					g_soundManager->play((int)track::GameOver, false);
-					Sleep(3500);
-					return;
-				}
+					float currTime = (float)timeGetTime();
+					float timeDelta = (currTime - lastTime) * 0.001f;
+					int random = rand() % MONSTERATONCE;
+					int percent = rand() % (100 / g_difficulty);
+					if (percent == 1)
+						Spawn(g_MonsterVector, random);
 
-				UpdateFSM(timeDelta);
-				lastTime = currTime;
+					if (g_MainCharacter->GetAlive() == false)
+					{
+						g_soundManager->play((int)track::CharacterDead, false);
+						g_soundManager->play((int)track::GameOver, false);
+						Sleep(3500);
+						return;
+					}
+
+					UpdateFSM(timeDelta);
+					lastTime = currTime;
+				}
 				::TranslateMessage(&msg);
 				::DispatchMessage(&msg);
 
@@ -859,12 +862,7 @@ void Move()
 		}
 
 	}
-	else
-	{
-		//죽었을 때,
 
-
-	}
 
 }
 
@@ -898,17 +896,17 @@ void HitCheck(std::vector<Bullet*> bv, std::vector<Monster*> mv, ID2D1SolidColor
 
 							if (g_MainCharacter->GetLevel() == 3)
 							{
-								g_difficulty -= 15;
+								g_difficulty = 2;
 								bulletBrush->SetColor(D2D1_COLOR_F(D2D1::ColorF(D2D1::ColorF::Red)));
 							}
 							if (g_MainCharacter->GetLevel() == 6)
 							{
-								g_difficulty -= 20;
+								g_difficulty = 4;
 								bulletBrush->SetColor(D2D1_COLOR_F(D2D1::ColorF(D2D1::ColorF::Violet)));
 							}
 							if (g_MainCharacter->GetLevel() == 10)
 							{
-								g_difficulty -= 25;
+								g_difficulty = 10;
 								bulletBrush->SetColor(D2D1_COLOR_F(D2D1::ColorF(D2D1::ColorF::Purple)));
 							}
 						}
@@ -1253,9 +1251,6 @@ HRESULT ForthHomework::OnRender()
 				float elapsedTime2 = (float)((double)(CurrentTime2.QuadPart - m_nPrevTime2.QuadPart) / (double)(m_nFrequency.QuadPart));
 				m_nPrevTime2 = CurrentTime2;
 				g_BulletVector[i]->m_AnimTime += elapsedTime2 * 5000;
-
-
-				//충돌판정 여기에 추가
 			}
 		}
 
@@ -1306,31 +1301,31 @@ HRESULT ForthHomework::OnRender()
 	return hr;
 }
 
-void Spawn(std::vector<Monster*>* mv, int i)
+void Spawn(std::vector<Monster*> mv, int i)
 {
-	if ((*mv)[i]->GetAlive() == false)
+	if ((mv)[i]->GetAlive() == false)
 	{
-		(*mv)[i]->m_monsterKind = rand() % 10;
-		if ((*mv)[i]->m_monsterKind > 3)
+		(mv)[i]->m_monsterKind = rand() % 10;
+		if ((mv)[i]->m_monsterKind > 3)
 		{
-			(*mv)[i]->m_monsterKind = (int)Monster::species::zombie;
-			(*mv)[i]->m_HP = 10;
-			(*mv)[i]->m_Damage = 10;
+			(mv)[i]->m_monsterKind = (int)Monster::species::zombie;
+			(mv)[i]->m_HP = 10;
+			(mv)[i]->m_Damage = 10;
 		}
-		else if ((*mv)[i]->m_monsterKind >= 1)
+		else if ((mv)[i]->m_monsterKind >= 1)
 		{
-			(*mv)[i]->m_monsterKind = (int)Monster::species::mutent;
-			(*mv)[i]->m_HP = 15;
-			(*mv)[i]->m_Damage = 15;
+			(mv)[i]->m_monsterKind = (int)Monster::species::mutent;
+			(mv)[i]->m_HP = 15;
+			(mv)[i]->m_Damage = 15;
 		}
 		else
 		{
-			(*mv)[i]->m_monsterKind = (int)Monster::species::alien;
-			(*mv)[i]->m_HP = 25;
-			(*mv)[i]->m_Damage = 20;
+			(mv)[i]->m_monsterKind = (int)Monster::species::alien;
+			(mv)[i]->m_HP = 25;
+			(mv)[i]->m_Damage = 20;
 		}
-		(*mv)[i]->InitializedPos();
-		(*mv)[i]->SetAlive(true);
+		(mv)[i]->InitializedPos();
+		(mv)[i]->SetAlive(true);
 	}
 }
 
@@ -1458,7 +1453,7 @@ LRESULT CALLBACK ForthHomework::WndProc(HWND hwnd, UINT message, WPARAM wParam, 
 			break;
 			case WM_PAINT:
 			{
-				pDemoApp->OnRender();
+					pDemoApp->OnRender();
 				// 여기에서 ValidateRect를 호출하지 말아야 OnRender 함수가 계속 반복 호출됨.
 			}
 			result = 0;
@@ -1466,14 +1461,17 @@ LRESULT CALLBACK ForthHomework::WndProc(HWND hwnd, UINT message, WPARAM wParam, 
 			break;
 			case WM_LBUTTONUP:
 			{
-				if (x<(g_rtSize.width / 1.5f) && x>(g_rtSize.width / 3.f) && y<(g_rtSize.height / 1.4f) && y >(g_rtSize.height / 1.8f))
+				if (g_start == false)
 				{
-					g_soundManager->play((int)track::start, FALSE); //시작
-					g_start = true;
+					if (x<(g_rtSize.width / 1.5f) && x>(g_rtSize.width / 3.f) && y<(g_rtSize.height / 1.4f) && y >(g_rtSize.height / 1.8f))
+					{
+						g_soundManager->play((int)track::start, FALSE); //시작
+						g_start = true;
+					}
+
+					if (x<(g_rtSize.width / 1.5f) && x>(g_rtSize.width / 3.f) && y < (g_rtSize.height / 1.1f) && y >(g_rtSize.height / 1.3f))
+						exit(0);
 				}
-				
-				if (x<(g_rtSize.width / 1.5f) && x>(g_rtSize.width / 3.f) && y < (g_rtSize.height / 1.1f) && y >(g_rtSize.height / 1.3f))
-					exit(0);
 			}
 			result = 1;
 			wasHandled = true;

@@ -1,13 +1,13 @@
 #pragma once
 #include <memory>
-#include "Playable.h"
+#include "Movable.h"
 #include "FiniteStateMachine.h"
 #include "SoundManager.h"
 
 #define DEFAULTWIDTH 1980
 #define DEFAULTHEIGHT 1200
 
-class Monster : public Playable
+class Monster : public Movable
 {
 public:
 	byte m_monsterKind;
@@ -64,7 +64,7 @@ public:
 	~Monster();
 
 	bool m_gothit = false;
-	void Update(std::shared_ptr<Playable> ch, float timeDelta, CSoundManager* g_soundManager=NULL);
+	void Update(std::shared_ptr<Movable> ch, float timeDelta, CSoundManager* g_soundManager=NULL);
 	void SetPosition(D2D1_POINT_2F pos) { m_position = pos; }
 	D2D1_POINT_2F GetPosition() { return m_position; }
 	float GetRange() { return m_rangeTouch; }
@@ -91,11 +91,11 @@ private:
 	void IssueEvent(DWORD event);
 	void MoveTo(float timeDelta);
 	bool IsVisible(D2D1_POINT_2F pos);
-	void UpdateAI(std::shared_ptr<Playable> ch, float timeDelta, CSoundManager* g_soundManager=NULL);
+	void UpdateAI(std::shared_ptr<Movable> ch, float timeDelta, CSoundManager* g_soundManager=NULL);
 	void ActionStand(float timeDelta);
 	void ActionMove(float timeDelta);
 	void ActionFollow(float timeDelta);
-	void ActionAttack(float timeDelta, std::shared_ptr<Playable> ch);
+	void ActionAttack(float timeDelta, std::shared_ptr<Movable> ch);
 	void ActionRage(float timeDelta);
 };
 

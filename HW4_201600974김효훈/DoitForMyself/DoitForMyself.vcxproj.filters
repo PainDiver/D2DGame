@@ -21,7 +21,7 @@
     <ClInclude Include="Resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ThirdHomework.h">
+    <ClInclude Include="ForthHomework.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Animation.h">
@@ -36,7 +36,7 @@
     <ClInclude Include="SoundManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Playable.h">
+    <ClInclude Include="Movable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Monster.h">
@@ -62,7 +62,7 @@
     <ClCompile Include="Monster.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Playable.cpp">
+    <ClCompile Include="Movable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FiniteStateMachine.cpp">
